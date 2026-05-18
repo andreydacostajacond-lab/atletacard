@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FIFV — Login</title>
+<meta name="description" content="Federação Internacional de Futevôlei — Login & Registration"/>
+<link rel="stylesheet" href="shared/css/fifv.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<style>
+/* ─── LOGIN PAGE SPECIFIC ─────────────────────────── */
+body {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(12, 92, 184, .12), transparent 60%),
+    linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%);
+}
+
+.lang-bar {
+  position: absolute; top: 18px; right: 22px; z-index: 10;
+  display: flex; gap: 6px; align-items: center;
+}
+.lang-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--white); border: 1px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: all .15s;
+}
+.lang-btn:hover { border-color: var(--fifv-blue-500); transform: scale(1.08); }
+.lang-btn.on { border-color: var(--fifv-blue-500); box-shadow: 0 0 0 2px var(--fifv-blue-100); }
+
+.auth-wrap {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px 16px; position: relative;
+}
+
+.brand {
+  text-align: center; margin-bottom: 28px;
+}
+.brand-logo {
+  width: 64px; height: 64px; margin: 0 auto 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--fifv-blue-400), var(--fifv-blue-600));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-blue);
+}
+.brand-logo svg { width: 36px; height: 36px; fill: var(--white); }
+.brand-title {
+  font-size: 2.5rem; font-weight: 900;
+  color: var(--fifv-blue-700); letter-spacing: .03em;
+  margin-bottom: 4px;
+}
+.brand-sub {
+  font-size: 11px; color: var(--gray-500);
+  text-transform: uppercase; letter-spacing: .14em;
+}
+
+.auth-card {
+  width: 100%; max-width: 440px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-tabs {
+  display: flex; gap: 4px;
+  background: var(--gray-100);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.atab {
+  flex: 1; padding: 10px;
+  border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600;
+  color: var(--gray-500);
+  background: transparent;
+  transition: all .15s;
+}
+.atab.on {
+  background: var(--white);
+  color: var(--fifv-blue-700);
+  box-shadow: var(--shadow-sm);
+}
+
+.aform { display: none; flex-direction: column; gap: 14px; }
+.aform.on { display: flex; }
+
+.form-header {
+  margin-bottom: 6px;
+}
+.form-header h2 {
+  font-size: 1.4rem; color: var(--gray-900);
+  margin-bottom: 4px;
+}
+.form-header p {
+  font-size: 13px; color: var(--gray-500);
+}
+
+.alert {
+  display: none; padding: 11px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 500;
+  margin-bottom: 4px;
+}
+.alert.on { display: block; }
+.alert.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.alert.ok  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+.terms-note {
+  font-size: 11px; color: var(--gray-500);
+  text-align: center; margin-top: 8px;
+  line-height: 1.5;
+}
+
+.footer-link {
+  text-align: center; margin-top: 20px;
+  font-size: 13px; color: var(--gray-500);
+}
+.footer-link a {
+  color: var(--fifv-blue-500); font-weight: 600;
+}
+.footer-link a:hover { text-decoration: underline; }
+
+/* RTL Support */
+[dir="rtl"] .lang-bar { right: auto; left: 22px; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="spl-logo">FIFV</div>
+  <div class="spl-bar-wrap"><div class="spl-bar"></div></div>
+  <div class="spl-sub" data-i18n="common.loading">Loading...</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- LANGUAGE BAR -->
+<div class="lang-bar" id="lang-bar"></div>
+
+<!-- AUTH -->
+<div class="auth-wrap">
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5 3.4 9.5 8 11 4.6-1.5 8-6 8-11V6l-8-4zm0 4l5 2.5v3c0 3.6-2.4 6.8-5 7.8-2.6-1-5-4.2-5-7.8v-3L12 6z"/></svg>
+    </div>
+    <h1 class="brand-title">FIFV</h1>
+    <p class="brand-sub" data-i18n="app.tagline">Federação Internacional de Futevôlei</p>
+  </div>
+
+  <!-- Card -->
+  <div class="auth-card">
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="atab on" id="tab-login"    onclick="switchTab('login')"    data-i18n="auth.tab.login">Anmelden</button>
+      <button class="atab"    id="tab-register" onclick="switchTab('register')" data-i18n="auth.tab.register">Registrieren</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form class="aform on" id="form-login" onsubmit="doLogin(event)">
+      <div class="form-header">
+        <h2 data-i18n="auth.login.title">Willkommen zurück</h2>
+        <p data-i18n="auth.login.subtitle">Melde dich mit deinem FIFV-Konto an</p>
+      </div>
+
+      <div class="alert err" id="login-err"></div>
+
+      <div class="fg">
+        <label class="lbl" for="li-email" data-i18n="common.email">E-Mail</label>
+        <input class="inp" id="li-email" type="email" required autocomplete="email"/>
+      </div>
+
+      <div class="fg">
+        <label class="lbl" for="li-pw" data-i18n="common.password">Passwort</label>
+        <input class="inp" id="li-pw" type="password" required minlength="6" autocomplete="current-password"/>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="li-btn" data-i18n="auth.login.button">
+        Anmelden
+      </button>
+
+      <div class="footer-link">
+        <span data-i18n="auth.noAccount">Noch kein Konto?</span>
+        <a href="#" onclick="switchTab('register');return false" data-i18n="nav.signup">Registrieren</a>
+      </div>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form class="aform" id="form-register" onsubmit="doRegister(event)">
+      <div class="form-header">
+        <h2 data-i18n="auth.register.title">Konto erstellen</h2>
+        <p data-i18n="auth.register.subtitle">Werde Teil der globalen Footvolley-Community</p>
+      </div>
+
+      <div class="alert err" id="reg-err"></div>
+      <div class="alert ok"  id="reg-ok"></div>
+
+      <div class="frow">
+        <div class="fg">
+          <label class="lbl" for="r-first" data-i18n="auth.register.firstName">Vorname</label>
+          <input class="inp" id="r-first" required autocomplete="given-name"/>
+        </div>
+        <div class="fg">
+          <label class="lbl" for="r-last" data-i18n="auth.register.lastName">Nachname</label>
+          <input class="inp" id="r-last" required autocomplete="family-name"/>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="lbl" for="r-country" data-i18n="auth.register.country">Land</label>
+        <select class="inp" id="r-country" required>
+          <option value="" data-i18n="auth.register.countryPick">Land auswählen</option>
+        </select>
+      </div>
+
+      <div class="fg">
+        <label class="lbl" for="r-email" data-i18n="common.email">E-Mail</label>
+        <input class="inp" id="r-email" type="email" required autocomplete="email"/>
+      </div>
+
+      <div class="fg">
+        <label class="lbl" for="r-pw" data-i18n="common.password">Passwort</label>
+        <input class="inp" id="r-pw" type="password" required minlength="6" autocomplete="new-password"/>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="r-btn" data-i18n="auth.register.button">
+        Konto erstellen
+      </button>
+
+      <p class="terms-note" data-i18n="auth.register.terms">
+        Mit der Registrierung akzeptierst du unsere Bedingungen.
+      </p>
+
+      <div class="footer-link">
+        <span data-i18n="auth.haveAccount">Bereits ein Konto?</span>
+        <a href="#" onclick="switchTab('login');return false" data-i18n="nav.login">Anmelden</a>
+      </div>
+    </form>
+
+  </div>
+
+</div>
+
+<!-- SCRIPTS -->
+<script src="shared/js/supabase.js"></script>
+<script src="shared/js/i18n.js"></script>
+<script src="shared/js/countries.js"></script>
+<script src="shared/js/auth.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   LOGIN PAGE LOGIC
+═══════════════════════════════════════════════════════ */
+
+// Wenn schon eingeloggt → direkt zu profile.html
+FIFV.getSession().then(session => {
+  if (session) {
+    const next = new URLSearchParams(location.search).get('next') || 'profile.html'
+    location.replace(next)
+    return
+  }
+  // Splash entfernen
+  setTimeout(() => document.getElementById('splash').classList.add('hide'), 400)
+  // Country-Dropdown füllen
+  fillCountries()
+  // Language bar bauen
+  buildLangBar()
+  // i18n initial anwenden
+  FIFV.i18n.applyToDOM()
+})
+
+function fillCountries() {
+  const sel = document.getElementById('r-country')
+  // Erstes <option> behalten (Placeholder), Rest dazu
+  const placeholderHtml = sel.innerHTML
+  sel.innerHTML = placeholderHtml + FIFV.countries.renderOptions('', FIFV.i18n.current)
+}
+
+function buildLangBar() {
+  const bar = document.getElementById('lang-bar')
+  bar.innerHTML = FIFV.i18n.available.map(l => `
+    <button class="lang-btn${l.code === FIFV.i18n.current ? ' on' : ''}"
+            onclick="changeLang('${l.code}')"
+            title="${l.label}">${l.flag}</button>
+  `).join('')
+}
+
+function changeLang(code) {
+  FIFV.i18n.setLang(code)
+  buildLangBar()
+  fillCountries()  // Country-Namen in neuer Sprache neu rendern
+}
+
+function switchTab(tab) {
+  const isLogin = tab === 'login'
+  document.getElementById('tab-login').classList.toggle('on', isLogin)
+  document.getElementById('tab-register').classList.toggle('on', !isLogin)
+  document.getElementById('form-login').classList.toggle('on', isLogin)
+  document.getElementById('form-register').classList.toggle('on', !isLogin)
+  // Clear alerts
+  document.querySelectorAll('.alert').forEach(a => a.classList.remove('on'))
+}
+
+function showAlert(id, msgKey, isKey = true) {
+  const el = document.getElementById(id)
+  el.textContent = isKey ? FIFV.i18n.t(msgKey) : msgKey
+  el.classList.add('on')
+}
+
+function clearAlerts() {
+  document.querySelectorAll('.alert').forEach(a => a.classList.remove('on'))
+}
+
+function toast(msg, type = '') {
+  const el = document.getElementById('toast')
+  el.textContent = msg
+  el.className = type
+  el.classList.add('on')
+  setTimeout(() => el.classList.remove('on'), 2800)
+}
+
+/* ─── LOGIN ─────────────────────────────────────────── */
+async function doLogin(e) {
+  e.preventDefault()
+  clearAlerts()
+
+  const btn = document.getElementById('li-btn')
+  const originalText = btn.textContent
+  btn.disabled = true
+  btn.textContent = FIFV.i18n.t('auth.login.loading')
+
+  const email = document.getElementById('li-email').value.trim()
+  const password = document.getElementById('li-pw').value
+
+  const { data, error } = await SB.auth.signInWithPassword({ email, password })
+
+  if (error) {
+    showAlert('login-err', 'auth.login.invalid')
+    btn.disabled = false
+    btn.textContent = originalText
+    return
+  }
+
+  // Successful login → redirect
+  const next = new URLSearchParams(location.search).get('next') || 'profile.html'
+  location.replace(next)
+}
+
+/* ─── REGISTER ──────────────────────────────────────── */
+async function doRegister(e) {
+  e.preventDefault()
+  clearAlerts()
+
+  const btn = document.getElementById('r-btn')
+  const originalText = btn.textContent
+
+  const firstName = document.getElementById('r-first').value.trim()
+  const lastName  = document.getElementById('r-last').value.trim()
+  const country   = document.getElementById('r-country').value
+  const email     = document.getElementById('r-email').value.trim()
+  const password  = document.getElementById('r-pw').value
+
+  // Validation
+  if (password.length < 6) {
+    showAlert('reg-err', 'auth.register.pwTooShort')
+    return
+  }
+  if (!country) {
+    showAlert('reg-err', 'auth.register.country')
+    return
+  }
+
+  btn.disabled = true
+  btn.textContent = FIFV.i18n.t('auth.register.loading')
+
+  // Supabase Auth signup — Trigger handle_new_user erstellt das Profile automatisch
+  const { data, error } = await SB.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        first_name: firstName,
+        last_name:  lastName,
+        country_code: country,
+      }
+    }
+  })
+
+  if (error) {
+    showAlert('reg-err', error.message, false)
+    btn.disabled = false
+    btn.textContent = originalText
+    return
+  }
+
+  // Profile-Update mit den zusätzlichen Daten
+  // (handle_new_user Trigger setzt nur ID + auth.users mapping — Rest setzen wir hier)
+  if (data?.user) {
+    await SB.from('profiles').update({
+      first_name: firstName,
+      last_name:  lastName,
+      country_code: country,
+      display_name: `${firstName} ${lastName}`.trim(),
+    }).eq('id', data.user.id)
+  }
+
+  // Erfolg-Message zeigen
+  showAlert('reg-ok', 'auth.register.success')
+  btn.disabled = false
+  btn.textContent = originalText
+
+  // Wenn schon Session (kein Email-Confirm), direkt weiter
+  if (data?.session) {
+    setTimeout(() => location.replace('profile.html'), 1200)
+  } else {
+    // Sonst auf Login-Tab wechseln
+    setTimeout(() => {
+      switchTab('login')
+      document.getElementById('li-email').value = email
+    }, 2000)
+  }
+}
+</script>
+
+</body>
+</html>
