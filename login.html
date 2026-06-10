@@ -4,433 +4,224 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>FIFV — Login</title>
-<meta name="description" content="Federação Internacional de Futevôlei — Login & Registration"/>
-<link rel="stylesheet" href="shared/css/fifv.css"/>
+<meta name="description" content="Federação Internacional de Futevôlei — Login & Registrierung"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-
 <style>
-/* ─── LOGIN PAGE SPECIFIC ─────────────────────────── */
-body {
-  background:
-    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(12, 92, 184, .12), transparent 60%),
-    linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%);
+:root{
+  --ink:#0b1524; --muted:#64748b; --faint:#94a3b8;
+  --line:#edf0f4; --fill:#f5f7fa;
+  --blue-700:#073872; --blue-600:#094a96; --blue-500:#0c5cb8; --blue-400:#2f7fd0; --blue-50:#eef5fc;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --display:'Space Grotesk','Inter',sans-serif;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);line-height:1.55;font-size:15px;background:radial-gradient(ellipse 70% 55% at 50% 0%, #e7f1fc 0%, transparent 58%),linear-gradient(180deg,#f7f9fc,#fff);min-height:100vh;-webkit-font-smoothing:antialiased}
+button,input,select{font-family:inherit;outline:none}
 
-.lang-bar {
-  position: absolute; top: 18px; right: 22px; z-index: 10;
-  display: flex; gap: 6px; align-items: center;
-}
-.lang-btn {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: var(--white); border: 1px solid var(--gray-200);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; transition: all .15s;
-}
-.lang-btn:hover { border-color: var(--fifv-blue-500); transform: scale(1.08); }
-.lang-btn.on { border-color: var(--fifv-blue-500); box-shadow: 0 0 0 2px var(--fifv-blue-100); }
+#splash{position:fixed;inset:0;z-index:200;background:linear-gradient(180deg,var(--blue-600),var(--blue-700));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#fff;transition:opacity .4s}
+#splash.hide{opacity:0;pointer-events:none}
+#splash svg{width:60px;height:60px;stroke:#fff;fill:none;stroke-width:2;animation:spin 2.4s linear infinite}
+#splash span{font-size:11px;letter-spacing:.18em;text-transform:uppercase;opacity:.8}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.auth-wrap {
-  min-height: 100vh;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 24px 16px; position: relative;
-}
+.lang{position:absolute;top:18px;right:22px;z-index:10}
+.lang-btn{width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid var(--line);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.lang-menu{position:absolute;right:0;top:42px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(10,22,40,.12);padding:6px;display:none;flex-direction:column;gap:2px;min-width:150px;z-index:60}
+.lang-menu.open{display:flex}
+.lang-menu button{display:flex;align-items:center;gap:10px;padding:9px 11px;border:none;background:none;border-radius:9px;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;text-align:left;width:100%}
+.lang-menu button:hover{background:var(--fill)}
+html[dir=rtl] .lang{right:auto;left:22px}
+html[dir=rtl] .lang-menu{right:auto;left:0}
 
-.brand {
-  text-align: center; margin-bottom: 28px;
-}
-.brand-logo {
-  width: 64px; height: 64px; margin: 0 auto 12px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--fifv-blue-400), var(--fifv-blue-600));
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow-blue);
-}
-.brand-logo svg { width: 36px; height: 36px; fill: var(--white); }
-.brand-title {
-  font-size: 2.5rem; font-weight: 900;
-  color: var(--fifv-blue-700); letter-spacing: .03em;
-  margin-bottom: 4px;
-}
-.brand-sub {
-  font-size: 11px; color: var(--gray-500);
-  text-transform: uppercase; letter-spacing: .14em;
-}
+.auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px}
+.brand{text-align:center;margin-bottom:26px}
+.brand-logo{width:60px;height:60px;margin:0 auto 14px;border-radius:16px;background:linear-gradient(135deg,var(--blue-400),var(--blue-600));display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(10,55,114,.28)}
+.brand-logo svg{width:34px;height:34px;stroke:#fff;fill:none;stroke-width:1.7}
+.brand-title{font-family:var(--display);font-size:38px;font-weight:700;color:var(--blue-700);letter-spacing:.02em;margin-bottom:5px}
+.brand-sub{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.14em}
 
-.auth-card {
-  width: 100%; max-width: 440px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-xl);
-  padding: 28px;
-  box-shadow: var(--shadow-lg);
-}
+.auth-card{width:100%;max-width:420px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:0 20px 50px rgba(8,22,42,.10)}
+.tabs{display:flex;gap:2px;background:var(--fill);border-radius:999px;padding:4px;margin-bottom:24px}
+.tab{flex:1;padding:9px;border:none;border-radius:999px;font-size:14px;font-weight:600;color:var(--muted);background:none;cursor:pointer;transition:.16s}
+.tab.on{background:#fff;color:var(--blue-700);box-shadow:0 1px 3px rgba(10,22,40,.08)}
 
-.auth-tabs {
-  display: flex; gap: 4px;
-  background: var(--gray-100);
-  border-radius: var(--radius-md);
-  padding: 4px;
-  margin-bottom: 24px;
-}
-.atab {
-  flex: 1; padding: 10px;
-  border-radius: var(--radius-sm);
-  font-size: 14px; font-weight: 600;
-  color: var(--gray-500);
-  background: transparent;
-  transition: all .15s;
-}
-.atab.on {
-  background: var(--white);
-  color: var(--fifv-blue-700);
-  box-shadow: var(--shadow-sm);
-}
+.aform{display:none;flex-direction:column;gap:15px}
+.aform.on{display:flex}
+.fh{margin-bottom:2px}
+.fh h2{font-family:var(--display);font-weight:600;font-size:21px;margin-bottom:4px}
+.fh p{font-size:13.5px;color:var(--muted)}
+.fg{display:flex;flex-direction:column}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:420px){.frow{grid-template-columns:1fr}}
+label.fl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+.inp{width:100%;height:46px;background:var(--fill);border:1px solid transparent;border-radius:12px;padding:0 14px;font-size:15px;color:var(--ink);transition:.15s}
+.inp:focus{background:#fff;border-color:var(--blue-400);box-shadow:0 0 0 3px var(--blue-50)}
+select.inp{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8 0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:38px}
+.btn{font-weight:600;font-size:15px;border:none;border-radius:12px;cursor:pointer;padding:13px 22px;transition:.16s;width:100%}
+.btn:disabled{opacity:.6;cursor:default}
+.btn-primary{background:var(--blue-500);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--blue-600);transform:translateY(-1px)}
+.alert{display:none;padding:11px 14px;border-radius:12px;font-size:13px;font-weight:500}
+.alert.on{display:block}
+.alert.err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.alert.ok{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.terms{font-size:11px;color:var(--faint);text-align:center;line-height:1.5;margin-top:2px}
+.flink{text-align:center;margin-top:8px;font-size:13px;color:var(--muted)}
+.flink a{color:var(--blue-500);font-weight:600;text-decoration:none;cursor:pointer}
+.flink a:hover{text-decoration:underline}
 
-.aform { display: none; flex-direction: column; gap: 14px; }
-.aform.on { display: flex; }
-
-.form-header {
-  margin-bottom: 6px;
-}
-.form-header h2 {
-  font-size: 1.4rem; color: var(--gray-900);
-  margin-bottom: 4px;
-}
-.form-header p {
-  font-size: 13px; color: var(--gray-500);
-}
-
-.alert {
-  display: none; padding: 11px 14px;
-  border-radius: var(--radius-md);
-  font-size: 13px; font-weight: 500;
-  margin-bottom: 4px;
-}
-.alert.on { display: block; }
-.alert.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-.alert.ok  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-
-.terms-note {
-  font-size: 11px; color: var(--gray-500);
-  text-align: center; margin-top: 8px;
-  line-height: 1.5;
-}
-
-.footer-link {
-  text-align: center; margin-top: 20px;
-  font-size: 13px; color: var(--gray-500);
-}
-.footer-link a {
-  color: var(--fifv-blue-500); font-weight: 600;
-}
-.footer-link a:hover { text-decoration: underline; }
-
-/* RTL Support */
-[dir="rtl"] .lang-bar { right: auto; left: 22px; }
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:14px;font-weight:500;box-shadow:0 12px 32px rgba(8,22,42,.25);opacity:0;pointer-events:none;transition:.25s;z-index:150}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 
-<!-- SPLASH -->
 <div id="splash">
-  <div class="spl-logo">FIFV</div>
-  <div class="spl-bar-wrap"><div class="spl-bar"></div></div>
-  <div class="spl-sub" data-i18n="common.loading">Loading...</div>
+  <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"/><ellipse cx="24" cy="24" rx="9" ry="20"/><path d="M4 24h40M9 12c8 5 22 5 30 0M9 36c8-5 22-5 30 0"/></svg>
+  <span id="spl-txt">Laden…</span>
 </div>
 
-<!-- TOAST -->
+<div class="lang"><button class="lang-btn" onclick="toggleLang(event)">🌐</button><div class="lang-menu" id="langMenu"></div></div>
+
+<div class="auth-wrap">
+  <div class="brand">
+    <div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg></div>
+    <div class="brand-title">FIFV</div>
+    <div class="brand-sub">Federação Internacional de Futevôlei</div>
+  </div>
+
+  <div class="auth-card">
+    <div class="tabs">
+      <button class="tab on" id="tab-login" onclick="switchTab('login')" data-pt="tab.login">Anmelden</button>
+      <button class="tab" id="tab-register" onclick="switchTab('register')" data-pt="tab.register">Registrieren</button>
+    </div>
+
+    <!-- LOGIN -->
+    <form class="aform on" id="form-login" onsubmit="doLogin(event)">
+      <div class="fh"><h2 data-pt="login.title">Willkommen zurück</h2><p data-pt="login.subtitle">Melde dich mit deinem FIFV-Konto an.</p></div>
+      <div class="alert err" id="login-err"></div>
+      <div class="fg"><label class="fl" for="li-email" data-pt="email">E-Mail</label><input class="inp" id="li-email" type="email" required autocomplete="email"></div>
+      <div class="fg"><label class="fl" for="li-pw" data-pt="password">Passwort</label><input class="inp" id="li-pw" type="password" required minlength="6" autocomplete="current-password"></div>
+      <button type="submit" class="btn btn-primary" id="li-btn" data-pt="login.button">Anmelden</button>
+      <div class="flink"><span data-pt="noAccount">Noch kein Konto?</span> <a onclick="switchTab('register')" data-pt="tab.register">Registrieren</a></div>
+    </form>
+
+    <!-- REGISTER -->
+    <form class="aform" id="form-register" onsubmit="doRegister(event)">
+      <div class="fh"><h2 data-pt="reg.title">Konto erstellen</h2><p data-pt="reg.subtitle">Werde Teil der globalen Footvolley-Community.</p></div>
+      <div class="alert err" id="reg-err"></div>
+      <div class="alert ok" id="reg-ok"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl" for="r-first" data-pt="reg.first">Vorname</label><input class="inp" id="r-first" required autocomplete="given-name"></div>
+        <div class="fg"><label class="fl" for="r-last" data-pt="reg.last">Nachname</label><input class="inp" id="r-last" required autocomplete="family-name"></div>
+      </div>
+      <div class="fg"><label class="fl" for="r-country" data-pt="reg.country">Land</label>
+        <select class="inp" id="r-country" required><option value="" data-pt="reg.countryPick">Land auswählen</option></select></div>
+      <div class="fg"><label class="fl" for="r-email" data-pt="email">E-Mail</label><input class="inp" id="r-email" type="email" required autocomplete="email"></div>
+      <div class="fg"><label class="fl" for="r-pw" data-pt="password">Passwort</label><input class="inp" id="r-pw" type="password" required minlength="6" autocomplete="new-password"></div>
+      <button type="submit" class="btn btn-primary" id="r-btn" data-pt="reg.button">Konto erstellen</button>
+      <p class="terms" data-pt="reg.terms">Mit der Registrierung akzeptierst du unsere Bedingungen.</p>
+      <div class="flink"><span data-pt="haveAccount">Bereits ein Konto?</span> <a onclick="switchTab('login')" data-pt="tab.login">Anmelden</a></div>
+    </form>
+  </div>
+</div>
+
 <div id="toast"></div>
 
-<!-- LANGUAGE BAR -->
-<div class="lang-bar" id="lang-bar"></div>
-
-<!-- AUTH -->
-<div class="auth-wrap">
-
-  <!-- Brand -->
-  <div class="brand">
-    <div class="brand-logo">
-      <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5 3.4 9.5 8 11 4.6-1.5 8-6 8-11V6l-8-4zm0 4l5 2.5v3c0 3.6-2.4 6.8-5 7.8-2.6-1-5-4.2-5-7.8v-3L12 6z"/></svg>
-    </div>
-    <h1 class="brand-title">FIFV</h1>
-    <p class="brand-sub" data-i18n="app.tagline">Federação Internacional de Futevôlei</p>
-  </div>
-
-  <!-- Card -->
-  <div class="auth-card">
-
-    <!-- Tabs -->
-    <div class="auth-tabs">
-      <button class="atab on" id="tab-login"    onclick="switchTab('login')"    data-i18n="auth.tab.login">Anmelden</button>
-      <button class="atab"    id="tab-register" onclick="switchTab('register')" data-i18n="auth.tab.register">Registrieren</button>
-    </div>
-
-    <!-- LOGIN FORM -->
-    <form class="aform on" id="form-login" onsubmit="doLogin(event)">
-      <div class="form-header">
-        <h2 data-i18n="auth.login.title">Willkommen zurück</h2>
-        <p data-i18n="auth.login.subtitle">Melde dich mit deinem FIFV-Konto an</p>
-      </div>
-
-      <div class="alert err" id="login-err"></div>
-
-      <div class="fg">
-        <label class="lbl" for="li-email" data-i18n="common.email">E-Mail</label>
-        <input class="inp" id="li-email" type="email" required autocomplete="email"/>
-      </div>
-
-      <div class="fg">
-        <label class="lbl" for="li-pw" data-i18n="common.password">Passwort</label>
-        <input class="inp" id="li-pw" type="password" required minlength="6" autocomplete="current-password"/>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-block btn-lg" id="li-btn" data-i18n="auth.login.button">
-        Anmelden
-      </button>
-
-      <div class="footer-link">
-        <span data-i18n="auth.noAccount">Noch kein Konto?</span>
-        <a href="#" onclick="switchTab('register');return false" data-i18n="nav.signup">Registrieren</a>
-      </div>
-    </form>
-
-    <!-- REGISTER FORM -->
-    <form class="aform" id="form-register" onsubmit="doRegister(event)">
-      <div class="form-header">
-        <h2 data-i18n="auth.register.title">Konto erstellen</h2>
-        <p data-i18n="auth.register.subtitle">Werde Teil der globalen Footvolley-Community</p>
-      </div>
-
-      <div class="alert err" id="reg-err"></div>
-      <div class="alert ok"  id="reg-ok"></div>
-
-      <div class="frow">
-        <div class="fg">
-          <label class="lbl" for="r-first" data-i18n="auth.register.firstName">Vorname</label>
-          <input class="inp" id="r-first" required autocomplete="given-name"/>
-        </div>
-        <div class="fg">
-          <label class="lbl" for="r-last" data-i18n="auth.register.lastName">Nachname</label>
-          <input class="inp" id="r-last" required autocomplete="family-name"/>
-        </div>
-      </div>
-
-      <div class="fg">
-        <label class="lbl" for="r-country" data-i18n="auth.register.country">Land</label>
-        <select class="inp" id="r-country" required>
-          <option value="" data-i18n="auth.register.countryPick">Land auswählen</option>
-        </select>
-      </div>
-
-      <div class="fg">
-        <label class="lbl" for="r-email" data-i18n="common.email">E-Mail</label>
-        <input class="inp" id="r-email" type="email" required autocomplete="email"/>
-      </div>
-
-      <div class="fg">
-        <label class="lbl" for="r-pw" data-i18n="common.password">Passwort</label>
-        <input class="inp" id="r-pw" type="password" required minlength="6" autocomplete="new-password"/>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-block btn-lg" id="r-btn" data-i18n="auth.register.button">
-        Konto erstellen
-      </button>
-
-      <p class="terms-note" data-i18n="auth.register.terms">
-        Mit der Registrierung akzeptierst du unsere Bedingungen.
-      </p>
-
-      <div class="footer-link">
-        <span data-i18n="auth.haveAccount">Bereits ein Konto?</span>
-        <a href="#" onclick="switchTab('login');return false" data-i18n="nav.login">Anmelden</a>
-      </div>
-    </form>
-
-  </div>
-
-</div>
-
-<!-- SCRIPTS -->
 <script src="shared/js/supabase.js"></script>
 <script src="shared/js/i18n.js"></script>
 <script src="shared/js/countries.js"></script>
 <script src="shared/js/auth.js"></script>
 
 <script>
-/* ═══════════════════════════════════════════════════════
-   LOGIN PAGE LOGIC
-═══════════════════════════════════════════════════════ */
-
-// Wenn schon eingeloggt → direkt zu profile.html
-FIFV.getSession().then(session => {
-  if (session) {
-    const next = new URLSearchParams(location.search).get('next') || 'profile.html'
-    location.replace(next)
-    return
-  }
-  // Splash entfernen
-  setTimeout(() => document.getElementById('splash').classList.add('hide'), 400)
-  // Country-Dropdown füllen
-  fillCountries()
-  // Language bar bauen
-  buildLangBar()
-  // i18n initial anwenden
-  FIFV.i18n.applyToDOM()
-})
-
-function fillCountries() {
-  const sel = document.getElementById('r-country')
-  // Erstes <option> behalten (Placeholder), Rest dazu
-  const placeholderHtml = sel.innerHTML
-  sel.innerHTML = placeholderHtml + FIFV.countries.renderOptions('', FIFV.i18n.current)
+const PT={
+ de:{'tab.login':'Anmelden','tab.register':'Registrieren','email':'E-Mail','password':'Passwort','noAccount':'Noch kein Konto?','haveAccount':'Bereits ein Konto?',
+  'login.title':'Willkommen zurück','login.subtitle':'Melde dich mit deinem FIFV-Konto an.','login.button':'Anmelden','login.loading':'Wird angemeldet …','login.invalid':'E-Mail oder Passwort ist falsch.',
+  'reg.title':'Konto erstellen','reg.subtitle':'Werde Teil der globalen Footvolley-Community.','reg.first':'Vorname','reg.last':'Nachname','reg.country':'Land','reg.countryPick':'Land auswählen','reg.button':'Konto erstellen','reg.loading':'Konto wird erstellt …','reg.terms':'Mit der Registrierung akzeptierst du unsere Bedingungen.','reg.success':'Konto erstellt! Prüfe deine E-Mails zur Bestätigung.','reg.pwShort':'Das Passwort muss mind. 6 Zeichen haben.','reg.countryReq':'Bitte wähle dein Land.','loading':'Laden …'},
+ en:{'tab.login':'Sign in','tab.register':'Sign up','email':'Email','password':'Password','noAccount':'No account yet?','haveAccount':'Already have an account?',
+  'login.title':'Welcome back','login.subtitle':'Sign in with your FIFV account.','login.button':'Sign in','login.loading':'Signing in …','login.invalid':'Email or password is incorrect.',
+  'reg.title':'Create account','reg.subtitle':'Join the global footvolley community.','reg.first':'First name','reg.last':'Last name','reg.country':'Country','reg.countryPick':'Select country','reg.button':'Create account','reg.loading':'Creating account …','reg.terms':'By registering you accept our terms.','reg.success':'Account created! Check your email to confirm.','reg.pwShort':'Password must be at least 6 characters.','reg.countryReq':'Please select your country.','loading':'Loading …'},
+ pt:{'tab.login':'Entrar','tab.register':'Cadastrar','email':'E-mail','password':'Senha','noAccount':'Ainda não tem conta?','haveAccount':'Já tem conta?',
+  'login.title':'Bem-vindo de volta','login.subtitle':'Entre com sua conta FIFV.','login.button':'Entrar','login.loading':'Entrando …','login.invalid':'E-mail ou senha incorretos.',
+  'reg.title':'Criar conta','reg.subtitle':'Faça parte da comunidade global do futevôlei.','reg.first':'Nome','reg.last':'Sobrenome','reg.country':'País','reg.countryPick':'Selecionar país','reg.button':'Criar conta','reg.loading':'Criando conta …','reg.terms':'Ao se cadastrar você aceita nossos termos.','reg.success':'Conta criada! Verifique seu e-mail para confirmar.','reg.pwShort':'A senha precisa ter pelo menos 6 caracteres.','reg.countryReq':'Selecione seu país.','loading':'Carregando …'},
+ es:{'tab.login':'Entrar','tab.register':'Registrarse','email':'Correo','password':'Contraseña','noAccount':'¿Aún no tienes cuenta?','haveAccount':'¿Ya tienes cuenta?',
+  'login.title':'Bienvenido de nuevo','login.subtitle':'Inicia sesión con tu cuenta FIFV.','login.button':'Entrar','login.loading':'Iniciando sesión …','login.invalid':'Correo o contraseña incorrectos.',
+  'reg.title':'Crear cuenta','reg.subtitle':'Únete a la comunidad global del futvóley.','reg.first':'Nombre','reg.last':'Apellido','reg.country':'País','reg.countryPick':'Seleccionar país','reg.button':'Crear cuenta','reg.loading':'Creando cuenta …','reg.terms':'Al registrarte aceptas nuestros términos.','reg.success':'¡Cuenta creada! Revisa tu correo para confirmar.','reg.pwShort':'La contraseña debe tener al menos 6 caracteres.','reg.countryReq':'Selecciona tu país.','loading':'Cargando …'},
+ fr:{'tab.login':'Se connecter','tab.register':'S\u2019inscrire','email':'E-mail','password':'Mot de passe','noAccount':'Pas encore de compte ?','haveAccount':'Déjà un compte ?',
+  'login.title':'Bon retour','login.subtitle':'Connecte-toi avec ton compte FIFV.','login.button':'Se connecter','login.loading':'Connexion …','login.invalid':'E-mail ou mot de passe incorrect.',
+  'reg.title':'Créer un compte','reg.subtitle':'Rejoins la communauté mondiale du footvolley.','reg.first':'Prénom','reg.last':'Nom','reg.country':'Pays','reg.countryPick':'Choisir un pays','reg.button':'Créer un compte','reg.loading':'Création du compte …','reg.terms':'En t\u2019inscrivant tu acceptes nos conditions.','reg.success':'Compte créé ! Vérifie tes e-mails pour confirmer.','reg.pwShort':'Le mot de passe doit faire au moins 6 caractères.','reg.countryReq':'Choisis ton pays.','loading':'Chargement …'},
+ he:{'tab.login':'התחברות','tab.register':'הרשמה','email':'דוא"ל','password':'סיסמה','noAccount':'אין לך חשבון?','haveAccount':'כבר יש לך חשבון?',
+  'login.title':'ברוך שובך','login.subtitle':'התחבר עם חשבון ה-FIFV שלך.','login.button':'התחברות','login.loading':'מתחבר …','login.invalid':'דוא"ל או סיסמה שגויים.',
+  'reg.title':'יצירת חשבון','reg.subtitle':'הצטרף לקהילת הפוטוולי העולמית.','reg.first':'שם פרטי','reg.last':'שם משפחה','reg.country':'מדינה','reg.countryPick':'בחר מדינה','reg.button':'יצירת חשבון','reg.loading':'יוצר חשבון …','reg.terms':'בהרשמה אתה מאשר את התנאים שלנו.','reg.success':'החשבון נוצר! בדוק את הדוא"ל לאישור.','reg.pwShort':'הסיסמה חייבת להכיל לפחות 6 תווים.','reg.countryReq':'בחר את המדינה שלך.','loading':'טוען …'},
 }
+function lang(){ return (window.FIFV&&FIFV.i18n&&FIFV.i18n.current)||document.documentElement.lang||'de' }
+function pt(k){ const l=lang(); return (PT[l]&&PT[l][k])||PT.en[k]||PT.de[k]||k }
+function applyPT(){ document.querySelectorAll('[data-pt]').forEach(el=>{ el.textContent=pt(el.dataset.pt) }) }
 
-function buildLangBar() {
-  const bar = document.getElementById('lang-bar')
-  bar.innerHTML = FIFV.i18n.available.map(l => `
-    <button class="lang-btn${l.code === FIFV.i18n.current ? ' on' : ''}"
-            onclick="changeLang('${l.code}')"
-            title="${l.label}">${l.flag}</button>
-  `).join('')
+FIFV.getSession().then(session=>{
+  if(session){ const next=new URLSearchParams(location.search).get('next')||'profile.html'; location.replace(next); return }
+  document.documentElement.lang=lang()
+  setTimeout(()=>document.getElementById('splash').classList.add('hide'),360)
+  fillCountries(); buildLangMenu(); applyPT()
+  document.getElementById('spl-txt').textContent=pt('loading')
+}).catch(()=>{ document.getElementById('splash').classList.add('hide'); fillCountries(); buildLangMenu(); applyPT() })
+
+function fillCountries(){
+  const sel=document.getElementById('r-country')
+  let opts=''
+  try{ opts=FIFV.countries.renderOptions('',lang()) }catch(_){}
+  sel.innerHTML=`<option value="">${pt('reg.countryPick')}</option>`+opts
 }
-
-function changeLang(code) {
-  FIFV.i18n.setLang(code)
-  buildLangBar()
-  fillCountries()  // Country-Namen in neuer Sprache neu rendern
+function buildLangMenu(){
+  const list=(window.FIFV&&FIFV.i18n&&FIFV.i18n.available)||[
+    {code:'de',flag:'🇩🇪',label:'Deutsch'},{code:'en',flag:'🇬🇧',label:'English'},{code:'pt',flag:'🇧🇷',label:'Português'},
+    {code:'es',flag:'🇪🇸',label:'Español'},{code:'fr',flag:'🇫🇷',label:'Français'},{code:'he',flag:'🇮🇱',label:'עברית'}]
+  document.getElementById('langMenu').innerHTML=list.map(l=>`<button class="${l.code===lang()?'on':''}" onclick="pickLang('${l.code}')"><span style="font-size:18px">${l.flag}</span><span>${l.label}</span></button>`).join('')
 }
+function toggleLang(e){ e.stopPropagation(); document.getElementById('langMenu').classList.toggle('open') }
+function pickLang(code){ try{ FIFV.i18n.setLang(code) }catch(_){ document.documentElement.lang=code } applyPT(); buildLangMenu(); fillCountries(); document.getElementById('langMenu').classList.remove('open') }
+document.addEventListener('click',e=>{ if(!e.target.closest('.lang')){ const m=document.getElementById('langMenu'); if(m) m.classList.remove('open') } })
 
-function switchTab(tab) {
-  const isLogin = tab === 'login'
-  document.getElementById('tab-login').classList.toggle('on', isLogin)
-  document.getElementById('tab-register').classList.toggle('on', !isLogin)
-  document.getElementById('form-login').classList.toggle('on', isLogin)
-  document.getElementById('form-register').classList.toggle('on', !isLogin)
-  // Clear alerts
-  document.querySelectorAll('.alert').forEach(a => a.classList.remove('on'))
-}
-
-function showAlert(id, msgKey, isKey = true) {
-  const el = document.getElementById(id)
-  el.textContent = isKey ? FIFV.i18n.t(msgKey) : msgKey
-  el.classList.add('on')
-}
-
-function clearAlerts() {
-  document.querySelectorAll('.alert').forEach(a => a.classList.remove('on'))
-}
-
-function toast(msg, type = '') {
-  const el = document.getElementById('toast')
-  el.textContent = msg
-  el.className = type
-  el.classList.add('on')
-  setTimeout(() => el.classList.remove('on'), 2800)
-}
-
-/* ─── LOGIN ─────────────────────────────────────────── */
-async function doLogin(e) {
-  e.preventDefault()
+function switchTab(tab){
+  const isLogin=tab==='login'
+  document.getElementById('tab-login').classList.toggle('on',isLogin)
+  document.getElementById('tab-register').classList.toggle('on',!isLogin)
+  document.getElementById('form-login').classList.toggle('on',isLogin)
+  document.getElementById('form-register').classList.toggle('on',!isLogin)
   clearAlerts()
+}
+function showAlert(id,text){ const el=document.getElementById(id); el.textContent=text; el.classList.add('on') }
+function clearAlerts(){ document.querySelectorAll('.alert').forEach(a=>a.classList.remove('on')) }
 
-  const btn = document.getElementById('li-btn')
-  const originalText = btn.textContent
-  btn.disabled = true
-  btn.textContent = FIFV.i18n.t('auth.login.loading')
-
-  const email = document.getElementById('li-email').value.trim()
-  const password = document.getElementById('li-pw').value
-
-  const { data, error } = await SB.auth.signInWithPassword({ email, password })
-
-  if (error) {
-    showAlert('login-err', 'auth.login.invalid')
-    btn.disabled = false
-    btn.textContent = originalText
-    return
-  }
-
-  // Successful login → redirect
-  const next = new URLSearchParams(location.search).get('next') || 'profile.html'
-  location.replace(next)
+async function doLogin(e){
+  e.preventDefault(); clearAlerts()
+  const btn=document.getElementById('li-btn'); const o=btn.textContent; btn.disabled=true; btn.textContent=pt('login.loading')
+  const email=document.getElementById('li-email').value.trim(), password=document.getElementById('li-pw').value
+  const { error } = await SB.auth.signInWithPassword({email,password})
+  if(error){ showAlert('login-err',pt('login.invalid')); btn.disabled=false; btn.textContent=o; return }
+  const next=new URLSearchParams(location.search).get('next')||'profile.html'; location.replace(next)
 }
 
-/* ─── REGISTER ──────────────────────────────────────── */
-async function doRegister(e) {
-  e.preventDefault()
-  clearAlerts()
-
-  const btn = document.getElementById('r-btn')
-  const originalText = btn.textContent
-
-  const firstName = document.getElementById('r-first').value.trim()
-  const lastName  = document.getElementById('r-last').value.trim()
-  const country   = document.getElementById('r-country').value
-  const email     = document.getElementById('r-email').value.trim()
-  const password  = document.getElementById('r-pw').value
-
-  // Validation
-  if (password.length < 6) {
-    showAlert('reg-err', 'auth.register.pwTooShort')
-    return
+async function doRegister(e){
+  e.preventDefault(); clearAlerts()
+  const btn=document.getElementById('r-btn'); const o=btn.textContent
+  const firstName=document.getElementById('r-first').value.trim(), lastName=document.getElementById('r-last').value.trim()
+  const country=document.getElementById('r-country').value, email=document.getElementById('r-email').value.trim(), password=document.getElementById('r-pw').value
+  if(password.length<6){ showAlert('reg-err',pt('reg.pwShort')); return }
+  if(!country){ showAlert('reg-err',pt('reg.countryReq')); return }
+  btn.disabled=true; btn.textContent=pt('reg.loading')
+  const { data, error } = await SB.auth.signUp({ email, password, options:{ data:{ first_name:firstName, last_name:lastName, country_code:country } } })
+  if(error){ showAlert('reg-err',error.message); btn.disabled=false; btn.textContent=o; return }
+  if(data&&data.user){
+    await SB.from('profiles').update({ first_name:firstName, last_name:lastName, country_code:country, display_name:`${firstName} ${lastName}`.trim() }).eq('id',data.user.id)
   }
-  if (!country) {
-    showAlert('reg-err', 'auth.register.country')
-    return
-  }
-
-  btn.disabled = true
-  btn.textContent = FIFV.i18n.t('auth.register.loading')
-
-  // Supabase Auth signup — Trigger handle_new_user erstellt das Profile automatisch
-  const { data, error } = await SB.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        first_name: firstName,
-        last_name:  lastName,
-        country_code: country,
-      }
-    }
-  })
-
-  if (error) {
-    showAlert('reg-err', error.message, false)
-    btn.disabled = false
-    btn.textContent = originalText
-    return
-  }
-
-  // Profile-Update mit den zusätzlichen Daten
-  // (handle_new_user Trigger setzt nur ID + auth.users mapping — Rest setzen wir hier)
-  if (data?.user) {
-    await SB.from('profiles').update({
-      first_name: firstName,
-      last_name:  lastName,
-      country_code: country,
-      display_name: `${firstName} ${lastName}`.trim(),
-    }).eq('id', data.user.id)
-  }
-
-  // Erfolg-Message zeigen
-  showAlert('reg-ok', 'auth.register.success')
-  btn.disabled = false
-  btn.textContent = originalText
-
-  // Wenn schon Session (kein Email-Confirm), direkt weiter
-  if (data?.session) {
-    setTimeout(() => location.replace('profile.html'), 1200)
-  } else {
-    // Sonst auf Login-Tab wechseln
-    setTimeout(() => {
-      switchTab('login')
-      document.getElementById('li-email').value = email
-    }, 2000)
-  }
+  showAlert('reg-ok',pt('reg.success')); btn.disabled=false; btn.textContent=o
+  if(data&&data.session){ setTimeout(()=>location.replace('profile.html'),1200) }
+  else { setTimeout(()=>{ switchTab('login'); document.getElementById('li-email').value=email },2000) }
 }
 </script>
-
 </body>
 </html>
