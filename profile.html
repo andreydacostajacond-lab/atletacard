@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FIFV — Profil</title>
+<meta name="description" content="Federação Internacional de Futevôlei — Dein Profil & deine AtletaCard"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{
+  --ink:#0b1524; --muted:#64748b; --faint:#94a3b8;
+  --line:#edf0f4; --fill:#f5f7fa;
+  --blue-700:#073872; --blue-600:#094a96; --blue-500:#0c5cb8; --blue-400:#2f7fd0; --blue-50:#eef5fc;
+  --gold-deep:#2a2008; --gold:#b78b34; --gold-bright:#f0c662; --gold-ink:#7a5510; --sand:#e7d6b0;
+  --green-bg:#e7f6ec; --green-tx:#15803d; --amber-bg:#fbf0d4; --amber-tx:#92660a;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --display:'Space Grotesk','Inter',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:var(--font); color:var(--ink); line-height:1.55; font-size:15px;
+  background:radial-gradient(ellipse 90% 40% at 50% -10%, #f0f6fd 0%, transparent 60%), #fff;
+  min-height:100vh; -webkit-font-smoothing:antialiased;
+}
+button,input,select{font-family:inherit;outline:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:200;background:linear-gradient(180deg,var(--blue-600),var(--blue-700));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#fff;transition:opacity .4s}
+#splash.hide{opacity:0;pointer-events:none}
+#splash svg{width:60px;height:60px;stroke:#fff;fill:none;stroke-width:2;animation:spin 2.4s linear infinite}
+#splash span{font-size:11px;letter-spacing:.18em;text-transform:uppercase;opacity:.8}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.hbar{height:62px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue-400),var(--blue-600));display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:21px;height:21px;stroke:#fff;fill:none;stroke-width:1.7}
+.logo b{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.02em;color:var(--blue-700)}
+.hnav{display:flex;align-items:center;gap:4px}
+.hnav a{text-decoration:none;color:var(--muted);font-weight:500;font-size:14px;padding:7px 11px;border-radius:8px;cursor:pointer}
+.hnav a.on{color:var(--blue-700);background:var(--blue-50)}
+.hnav a.soon{color:var(--faint)}
+@media(max-width:680px){.hnav{display:none}}
+.hright{display:flex;align-items:center;gap:8px}
+.lang{position:relative}
+.lang-btn{width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid var(--line);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.lang-menu{position:absolute;right:0;top:42px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(10,22,40,.12);padding:6px;display:none;flex-direction:column;gap:2px;min-width:150px;z-index:60}
+.lang-menu.open{display:flex}
+.lang-menu button{display:flex;align-items:center;gap:10px;padding:9px 11px;border:none;background:none;border-radius:9px;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;text-align:left;width:100%}
+.lang-menu button:hover{background:var(--fill)}
+.lang-menu button.on{color:var(--blue-600)}
+html[dir=rtl] .lang-menu{right:auto;left:0}
+.signout{font-size:14px;font-weight:500;color:var(--muted);background:none;border:none;cursor:pointer;padding:7px 10px;border-radius:8px}
+.signout:hover{background:var(--fill);color:var(--ink)}
+
+/* PAGE HEAD */
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.phead{padding:44px 0 36px}
+.phead h1{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:-.015em;margin-top:8px}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:340px 1fr;gap:56px;align-items:start;padding-bottom:80px}
+@media(max-width:840px){.grid{grid-template-columns:1fr;gap:40px}}
+.left{position:sticky;top:88px}
+@media(max-width:840px){.left{position:static}}
+
+/* TOGGLE */
+.preview-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.toggle{display:inline-flex;background:var(--fill);border-radius:999px;padding:4px;gap:2px}
+.toggle button{font-weight:600;font-size:13px;color:var(--muted);background:none;border:none;padding:8px 20px;border-radius:999px;cursor:pointer;transition:.18s}
+.toggle button.on{background:#fff;color:var(--blue-700);box-shadow:0 1px 3px rgba(10,22,40,.08)}
+.toggle button.on.g{color:var(--gold-ink)}
+.preview-note{font-size:11px;color:var(--faint)}
+
+/* CARD */
+.card{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:11/16;color:#fff;display:flex;flex-direction:column;padding:22px 22px 0;isolation:isolate;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s}
+.card.basic{background:linear-gradient(168deg,#0e5aad 0%,#0a3f7c 50%,#062a52 100%);box-shadow:0 18px 50px rgba(10,55,114,.32)}
+.card.prem{background:linear-gradient(168deg,#3a2c0c 0%,#221806 55%,#0f0a03 100%);box-shadow:0 18px 50px rgba(150,110,30,.30)}
+.card:hover{transform:translateY(-5px)}
+.card .sheen{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0}
+.card.prem .sheen{opacity:1;background:linear-gradient(115deg,transparent 35%,rgba(255,232,180,.16) 47%,rgba(255,240,200,.05) 53%,transparent 66%);background-size:280% 280%;animation:sheen 7s ease-in-out infinite}
+.card.prem::after{content:"";position:absolute;inset:0;border:1px solid rgba(240,198,98,.4);border-radius:24px;z-index:2;pointer-events:none}
+@keyframes sheen{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.card .sand{position:absolute;left:0;right:0;bottom:0;height:6px;z-index:1;background:linear-gradient(90deg,transparent,var(--sand),transparent);opacity:.5}
+.c-top{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:flex-start}
+.c-crest{display:flex;flex-direction:column;gap:5px}
+.c-crest .mk{display:flex;align-items:center;gap:7px;font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.04em}
+.c-crest .mk svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7}
+.c-crest .lbl{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;opacity:.62}
+.c-ovr{text-align:right;line-height:.9}
+.c-ovr b{font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:-.02em;display:block}
+.card.prem .c-ovr b{color:var(--gold-bright)}
+.c-ovr span{font-size:9px;font-weight:600;letter-spacing:.18em;opacity:.62}
+.c-mid{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:8px 0}
+.c-av{width:104px;height:104px;border-radius:24px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:34px;color:rgba(255,255,255,.92)}
+.card.prem .c-av{border-color:rgba(240,198,98,.45)}
+.c-name{font-family:var(--display);font-weight:600;font-size:22px;text-align:center;line-height:1.15}
+.c-loc{display:flex;align-items:center;gap:7px;font-size:13px;opacity:.85}
+.c-skills{position:relative;z-index:3;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:16px 2px}
+.c-sk{text-align:center}
+.c-sk b{font-family:var(--display);font-weight:600;font-size:16px;display:block}
+.c-sk span{font-size:8.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.6}
+.c-foot{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;padding:13px 0 16px;border-top:1px solid rgba(255,255,255,.14);font-size:11px}
+.c-foot .k{opacity:.55;font-size:8.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.c-foot .v{font-family:ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:.02em}
+.c-foot .r{text-align:right}
+html[dir=rtl] .c-foot .r{text-align:left}
+
+/* SECTIONS */
+.sec{padding:28px 0;border-top:1px solid var(--line)}
+.sec:first-child{padding-top:0;border-top:none}
+.sec-h{margin-bottom:20px}
+.sec-h h2{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em;margin-top:6px}
+.sec-h .hint{font-size:13px;color:var(--muted);margin-top:3px}
+.soon{font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--blue-600);background:var(--blue-50);padding:3px 9px;border-radius:999px;margin-inline-start:8px;vertical-align:middle}
+.avline{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.av-thumb{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--blue-400),var(--blue-600));background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--display);font-weight:700;font-size:23px;flex-shrink:0}
+.av-meta{font-size:12px;color:var(--faint);margin-top:5px}
+label.fl{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+.inp{width:100%;height:46px;background:var(--fill);border:1px solid transparent;border-radius:12px;padding:0 14px;font-size:15px;color:var(--ink);transition:.15s}
+.inp:focus{background:#fff;border-color:var(--blue-400);box-shadow:0 0 0 3px var(--blue-50)}
+select.inp{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8 0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:38px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.two{grid-template-columns:1fr}}
+.fgroup{margin-bottom:16px}
+.btn{font-weight:600;font-size:15px;border:none;border-radius:12px;cursor:pointer;padding:13px 22px;transition:.16s}
+.btn:disabled{opacity:.6;cursor:default}
+.btn-primary{background:var(--blue-500);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--blue-600);transform:translateY(-1px)}
+.btn-ghost{background:var(--fill);color:var(--ink)}
+.btn-ghost:hover:not(:disabled){background:#eef1f6}
+.btn-gold{background:linear-gradient(135deg,var(--gold-bright),var(--gold));color:var(--gold-deep)}
+.btn-gold:hover:not(:disabled){transform:translateY(-1px)}
+.btn-block{width:100%}
+.btn-sm{padding:9px 16px;font-size:13.5px}
+.sk-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line)}
+.sk-row:last-child{border-bottom:none}
+.sk-row .nm{font-weight:500;font-size:15px}
+.stars{display:flex;gap:4px}
+.star{width:26px;height:26px;cursor:pointer;color:#dfe4ec;transition:.12s}
+.star:hover{transform:scale(1.12)}
+.star.on{color:var(--gold)}
+.star svg{width:100%;height:100%;fill:currentColor}
+.lic{display:grid;grid-template-columns:1fr 1fr;gap:22px 18px;margin-bottom:20px}
+.lic .k{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.lic .v{font-size:16px;font-weight:600}
+.lic .v.mono{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-weight:500}
+.pill{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px}
+.pill.green{background:var(--green-bg);color:var(--green-tx)}
+.pill.blue{background:var(--blue-50);color:var(--blue-700)}
+.pill.gold{background:var(--amber-bg);color:var(--gold-ink)}
+.pill.gray{background:#eef1f5;color:var(--muted)}
+.lic-none{display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+.lic-none p{color:var(--muted);font-size:14px}
+.empty{display:flex;align-items:center;gap:12px;color:var(--faint);font-size:14px;padding:8px 0}
+.empty svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6}
+
+/* MODAL + TOAST */
+.modal-bg{position:fixed;inset:0;background:rgba(8,22,42,.42);backdrop-filter:blur(3px);z-index:120;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(8,22,42,.28);max-width:380px;width:100%;padding:28px;text-align:center}
+.modal .ico{width:54px;height:54px;border-radius:50%;background:var(--blue-50);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.modal .ico svg{width:26px;height:26px;stroke:var(--blue-600);fill:none;stroke-width:1.8}
+.modal h3{font-family:var(--display);font-weight:600;font-size:19px;margin-bottom:8px}
+.modal p{color:var(--muted);font-size:14px;line-height:1.55;margin-bottom:20px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:14px;font-weight:500;box-shadow:0 12px 32px rgba(8,22,42,.25);opacity:0;pointer-events:none;transition:.25s;z-index:150}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{background:var(--green-tx)}
+#toast.err{background:#b91c1c}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"/><ellipse cx="24" cy="24" rx="9" ry="20"/><path d="M4 24h40M9 12c8 5 22 5 30 0M9 36c8-5 22-5 30 0"/></svg>
+  <span id="spl-txt">Laden…</span>
+</div>
+
+<header><div class="wrap hbar">
+  <a class="logo" href="index.html"><span class="logo-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg></span><b>FIFV</b></a>
+  <nav class="hnav" id="hnav">
+    <a class="on" href="profile.html" data-pt="nav.profile">Profil</a>
+    <a class="soon" onclick="soon()" data-pt="nav.tournaments">Turniere</a>
+    <a class="soon" onclick="soon()" data-pt="nav.clubs">Klubs</a>
+    <a class="soon" onclick="soon()" data-pt="nav.federations">Verbände</a>
+  </nav>
+  <div class="hright">
+    <div class="lang"><button class="lang-btn" onclick="toggleLang(event)">🌐</button><div class="lang-menu" id="langMenu"></div></div>
+    <button class="signout" onclick="FIFV.logout()" data-pt="nav.logout">Abmelden</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <div class="phead"><div class="eyebrow" data-pt="account.eyebrow">Mein Konto</div><h1 data-pt="profile.title">Profil</h1></div>
+
+  <div class="grid">
+    <!-- CARD -->
+    <div class="left">
+      <div class="preview-row">
+        <div class="toggle">
+          <button id="t-basic" class="on" onclick="setPlan('basic')" data-pt="license.basic">Basic</button>
+          <button id="t-prem" class="g" onclick="setPlan('prem')" data-pt="license.premium">Premium</button>
+        </div>
+        <span class="preview-note" data-pt="preview">Vorschau</span>
+      </div>
+
+      <div class="card basic" id="card">
+        <div class="sheen"></div>
+        <div class="c-top">
+          <div class="c-crest">
+            <span class="mk"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>FIFV</span>
+            <span class="lbl" data-pt="card.intlLicense">International License</span>
+          </div>
+          <div class="c-ovr"><b id="ovr">—</b><span>OVR</span></div>
+        </div>
+        <div class="c-mid">
+          <div class="c-av" id="c-av">?</div>
+          <div class="c-name" id="c-name">—</div>
+          <div class="c-loc" id="c-loc"><span>🏳️</span><span>—</span></div>
+        </div>
+        <div class="c-skills" id="c-skills"></div>
+        <div class="c-foot">
+          <div><div class="k" data-pt="card.licenseLabel">Lizenz</div><div class="v" id="c-serial">FIFV-•••</div></div>
+          <div class="r"><div class="k" data-pt="license.validUntil">Gültig bis</div><div class="v" id="c-valid">—</div></div>
+        </div>
+        <div class="sand"></div>
+      </div>
+    </div>
+
+    <!-- DETAILS -->
+    <div class="right">
+      <section class="sec">
+        <div class="sec-h"><div class="eyebrow" data-pt="edit.eyebrow">Bearbeiten</div><h2 data-pt="edit.title">Foto & Angaben</h2></div>
+        <div class="avline">
+          <div class="av-thumb" id="av-thumb">?</div>
+          <div>
+            <button class="btn btn-ghost btn-sm" id="av-btn" onclick="document.getElementById('av-file').click()" data-pt="profile.upload">Bild hochladen</button>
+            <input type="file" id="av-file" accept="image/png,image/jpeg,image/webp" hidden onchange="uploadAvatar(event)"/>
+            <div class="av-meta" data-pt="profile.avatarHint">JPG / PNG / WebP · max 10 MB</div>
+          </div>
+        </div>
+        <div class="two">
+          <div><label class="fl" data-pt="field.first">Vorname</label><input class="inp" id="f-first"></div>
+          <div><label class="fl" data-pt="field.last">Nachname</label><input class="inp" id="f-last"></div>
+        </div>
+        <div class="fgroup" style="margin-top:16px"><label class="fl" data-pt="field.display">Anzeigename</label><input class="inp" id="f-display"></div>
+        <div class="fgroup"><label class="fl" data-pt="field.country">Land</label><select class="inp" id="f-country"></select></div>
+        <button class="btn btn-primary" id="save-profile" onclick="saveProfile()" data-pt="common.save">Speichern</button>
+      </section>
+
+      <section class="sec">
+        <div class="sec-h"><div class="eyebrow" data-pt="skills.eyebrow">Bewertung</div><h2 data-pt="skills.title">Skills</h2><div class="hint" data-pt="skills.hint">Tippe die Sterne an (0–5) — live auf deiner Karte.</div></div>
+        <div id="skedit"></div>
+        <button class="btn btn-primary" style="margin-top:18px" id="save-skills" onclick="saveSkills()" data-pt="common.save">Speichern</button>
+      </section>
+
+      <section class="sec">
+        <div class="sec-h"><div class="eyebrow" data-pt="status.eyebrow">Status</div><h2 data-pt="license.title">Lizenz</h2></div>
+        <div id="lic-body"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-h"><div class="eyebrow"><span data-pt="tournaments.eyebrow">Turniere</span><span class="soon" data-pt="soon">bald</span></div><h2 data-pt="tournaments.title">Meine Turniere</h2></div>
+        <div class="empty"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M5 4h14v5a7 7 0 01-14 0V4z"/></svg><span data-pt="noTournaments">Noch keine Anmeldungen</span></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="modal-bg" id="pay-modal">
+  <div class="modal">
+    <div class="ico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+    <h3 data-pt="pay.title">Bezahlung in Vorbereitung</h3>
+    <p data-pt="pay.body">Der Lizenzkauf via Stripe wird gerade fertiggestellt. Bald löst du hier deine FIFV-Lizenz direkt — Basic oder Premium.</p>
+    <button class="btn btn-primary btn-block" onclick="closePay()" data-pt="pay.close">Verstanden</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="shared/js/supabase.js"></script>
+<script src="shared/js/i18n.js"></script>
+<script src="shared/js/countries.js"></script>
+<script src="shared/js/auth.js"></script>
+
+<script>
+const PT = {
+de:{ 'nav.profile':'Profil','nav.tournaments':'Turniere','nav.clubs':'Klubs','nav.federations':'Verbände','nav.logout':'Abmelden',
+ 'account.eyebrow':'Mein Konto','profile.title':'Profil','preview':'Vorschau','edit.eyebrow':'Bearbeiten','edit.title':'Foto & Angaben',
+ 'profile.upload':'Bild hochladen','profile.avatarHint':'JPG / PNG / WebP · max 10 MB','field.first':'Vorname','field.last':'Nachname',
+ 'field.display':'Anzeigename','field.country':'Land','country.pick':'Land wählen …','common.save':'Speichern',
+ 'skills.eyebrow':'Bewertung','skills.title':'Skills','skills.hint':'Tippe die Sterne an (0–5) — live auf deiner Karte.',
+ 'skill.shark':'Shark','skill.defense':'Verteidigung','skill.intelligence':'Intelligenz','skill.serve':'Aufschlag','skill.reception':'Annahme',
+ 'status.eyebrow':'Status','license.title':'Lizenz','license.number':'Lizenznummer','license.validUntil':'Gültig bis','license.plan':'Plan','license.status':'Status',
+ 'license.basic':'Basic','license.premium':'Premium','license.none':'Du hast noch keine aktive Lizenz.','license.buy':'Lizenz kaufen','license.upgrade':'Auf Premium upgraden →',
+ 'st.active':'Aktiv','st.pending':'Ausstehend','st.expired':'Abgelaufen','st.suspended':'Gesperrt','st.revoked':'Widerrufen',
+ 'card.intlLicense':'International License','card.licenseLabel':'Lizenz','tournaments.eyebrow':'Turniere','tournaments.title':'Meine Turniere','soon':'bald','noTournaments':'Noch keine Anmeldungen',
+ 'pay.title':'Bezahlung in Vorbereitung','pay.body':'Der Lizenzkauf via Stripe wird gerade fertiggestellt. Bald löst du hier deine FIFV-Lizenz direkt — Basic oder Premium.','pay.close':'Verstanden',
+ 'loading':'Laden …','t.profileSaved':'Profil gespeichert','t.skillsSaved':'Skills gespeichert','t.avatarSaved':'Bild aktualisiert','t.error':'Etwas ist schiefgelaufen','t.tooBig':'Bild zu gross (max 10 MB)','t.soon':'Bald verfügbar' },
+en:{ 'nav.profile':'Profile','nav.tournaments':'Tournaments','nav.clubs':'Clubs','nav.federations':'Federations','nav.logout':'Sign out',
+ 'account.eyebrow':'My account','profile.title':'Profile','preview':'Preview','edit.eyebrow':'Edit','edit.title':'Photo & details',
+ 'profile.upload':'Upload photo','profile.avatarHint':'JPG / PNG / WebP · max 10 MB','field.first':'First name','field.last':'Last name',
+ 'field.display':'Display name','field.country':'Country','country.pick':'Select country …','common.save':'Save',
+ 'skills.eyebrow':'Rating','skills.title':'Skills','skills.hint':'Tap the stars (0–5) — shows live on your card.',
+ 'skill.shark':'Shark','skill.defense':'Defense','skill.intelligence':'Game IQ','skill.serve':'Serve','skill.reception':'Reception',
+ 'status.eyebrow':'Status','license.title':'License','license.number':'License number','license.validUntil':'Valid until','license.plan':'Plan','license.status':'Status',
+ 'license.basic':'Basic','license.premium':'Premium','license.none':'You have no active license yet.','license.buy':'Buy license','license.upgrade':'Upgrade to Premium →',
+ 'st.active':'Active','st.pending':'Pending','st.expired':'Expired','st.suspended':'Suspended','st.revoked':'Revoked',
+ 'card.intlLicense':'International License','card.licenseLabel':'License','tournaments.eyebrow':'Tournaments','tournaments.title':'My tournaments','soon':'soon','noTournaments':'No registrations yet',
+ 'pay.title':'Payment coming soon','pay.body':'License purchase via Stripe is being finalized. Soon you will get your FIFV license right here — Basic or Premium.','pay.close':'Got it',
+ 'loading':'Loading …','t.profileSaved':'Profile saved','t.skillsSaved':'Skills saved','t.avatarSaved':'Photo updated','t.error':'Something went wrong','t.tooBig':'Image too large (max 10 MB)','t.soon':'Coming soon' },
+pt:{ 'nav.profile':'Perfil','nav.tournaments':'Torneios','nav.clubs':'Clubes','nav.federations':'Federações','nav.logout':'Sair',
+ 'account.eyebrow':'Minha conta','profile.title':'Perfil','preview':'Prévia','edit.eyebrow':'Editar','edit.title':'Foto & dados',
+ 'profile.upload':'Enviar foto','profile.avatarHint':'JPG / PNG / WebP · máx 10 MB','field.first':'Nome','field.last':'Sobrenome',
+ 'field.display':'Nome de exibição','field.country':'País','country.pick':'Selecionar país …','common.save':'Salvar',
+ 'skills.eyebrow':'Avaliação','skills.title':'Skills','skills.hint':'Toque nas estrelas (0–5) — ao vivo no seu card.',
+ 'skill.shark':'Shark','skill.defense':'Defesa','skill.intelligence':'Inteligência','skill.serve':'Saque','skill.reception':'Recepção',
+ 'status.eyebrow':'Status','license.title':'Licença','license.number':'Número da licença','license.validUntil':'Válida até','license.plan':'Plano','license.status':'Status',
+ 'license.basic':'Basic','license.premium':'Premium','license.none':'Você ainda não tem licença ativa.','license.buy':'Comprar licença','license.upgrade':'Upgrade para Premium →',
+ 'st.active':'Ativa','st.pending':'Pendente','st.expired':'Expirada','st.suspended':'Suspensa','st.revoked':'Revogada',
+ 'card.intlLicense':'International License','card.licenseLabel':'Licença','tournaments.eyebrow':'Torneios','tournaments.title':'Meus torneios','soon':'em breve','noTournaments':'Nenhuma inscrição ainda',
+ 'pay.title':'Pagamento em breve','pay.body':'A compra da licença via Stripe está sendo finalizada. Em breve você obtém sua licença FIFV aqui — Basic ou Premium.','pay.close':'Entendi',
+ 'loading':'Carregando …','t.profileSaved':'Perfil salvo','t.skillsSaved':'Skills salvos','t.avatarSaved':'Foto atualizada','t.error':'Algo deu errado','t.tooBig':'Imagem muito grande (máx 10 MB)','t.soon':'Em breve' },
+es:{ 'nav.profile':'Perfil','nav.tournaments':'Torneos','nav.clubs':'Clubes','nav.federations':'Federaciones','nav.logout':'Salir',
+ 'account.eyebrow':'Mi cuenta','profile.title':'Perfil','preview':'Vista previa','edit.eyebrow':'Editar','edit.title':'Foto y datos',
+ 'profile.upload':'Subir foto','profile.avatarHint':'JPG / PNG / WebP · máx 10 MB','field.first':'Nombre','field.last':'Apellido',
+ 'field.display':'Nombre visible','field.country':'País','country.pick':'Seleccionar país …','common.save':'Guardar',
+ 'skills.eyebrow':'Valoración','skills.title':'Skills','skills.hint':'Toca las estrellas (0–5) — en vivo en tu tarjeta.',
+ 'skill.shark':'Shark','skill.defense':'Defensa','skill.intelligence':'Inteligencia','skill.serve':'Saque','skill.reception':'Recepción',
+ 'status.eyebrow':'Estado','license.title':'Licencia','license.number':'Número de licencia','license.validUntil':'Válida hasta','license.plan':'Plan','license.status':'Estado',
+ 'license.basic':'Basic','license.premium':'Premium','license.none':'Aún no tienes licencia activa.','license.buy':'Comprar licencia','license.upgrade':'Mejorar a Premium →',
+ 'st.active':'Activa','st.pending':'Pendiente','st.expired':'Vencida','st.suspended':'Suspendida','st.revoked':'Revocada',
+ 'card.intlLicense':'International License','card.licenseLabel':'Licencia','tournaments.eyebrow':'Torneos','tournaments.title':'Mis torneos','soon':'pronto','noTournaments':'Aún no hay inscripciones',
+ 'pay.title':'Pago próximamente','pay.body':'La compra de licencia con Stripe se está finalizando. Pronto obtendrás tu licencia FIFV aquí — Basic o Premium.','pay.close':'Entendido',
+ 'loading':'Cargando …','t.profileSaved':'Perfil guardado','t.skillsSaved':'Skills guardados','t.avatarSaved':'Foto actualizada','t.error':'Algo salió mal','t.tooBig':'Imagen demasiado grande (máx 10 MB)','t.soon':'Próximamente' },
+fr:{ 'nav.profile':'Profil','nav.tournaments':'Tournois','nav.clubs':'Clubs','nav.federations':'Fédérations','nav.logout':'Déconnexion',
+ 'account.eyebrow':'Mon compte','profile.title':'Profil','preview':'Aperçu','edit.eyebrow':'Modifier','edit.title':'Photo & détails',
+ 'profile.upload':'Téléverser une photo','profile.avatarHint':'JPG / PNG / WebP · max 10 Mo','field.first':'Prénom','field.last':'Nom',
+ 'field.display':'Nom affiché','field.country':'Pays','country.pick':'Choisir un pays …','common.save':'Enregistrer',
+ 'skills.eyebrow':'Évaluation','skills.title':'Skills','skills.hint':'Touche les étoiles (0–5) — en direct sur ta carte.',
+ 'skill.shark':'Shark','skill.defense':'Défense','skill.intelligence':'Intelligence','skill.serve':'Service','skill.reception':'Réception',
+ 'status.eyebrow':'Statut','license.title':'Licence','license.number':'Numéro de licence','license.validUntil':'Valable jusqu’au','license.plan':'Formule','license.status':'Statut',
+ 'license.basic':'Basic','license.premium':'Premium','license.none':'Tu n’as pas encore de licence active.','license.buy':'Acheter une licence','license.upgrade':'Passer à Premium →',
+ 'st.active':'Active','st.pending':'En attente','st.expired':'Expirée','st.suspended':'Suspendue','st.revoked':'Révoquée',
+ 'card.intlLicense':'International License','card.licenseLabel':'Licence','tournaments.eyebrow':'Tournois','tournaments.title':'Mes tournois','soon':'bientôt','noTournaments':'Aucune inscription pour le moment',
+ 'pay.title':'Paiement bientôt disponible','pay.body':'L’achat de licence via Stripe est en cours de finalisation. Bientôt tu obtiendras ta licence FIFV ici — Basic ou Premium.','pay.close':'Compris',
+ 'loading':'Chargement …','t.profileSaved':'Profil enregistré','t.skillsSaved':'Skills enregistrés','t.avatarSaved':'Photo mise à jour','t.error':'Une erreur est survenue','t.tooBig':'Image trop grande (max 10 Mo)','t.soon':'Bientôt' },
+he:{ 'nav.profile':'פרופיל','nav.tournaments':'טורנירים','nav.clubs':'מועדונים','nav.federations':'התאחדויות','nav.logout':'התנתקות',
+ 'account.eyebrow':'החשבון שלי','profile.title':'פרופיל','preview':'תצוגה מקדימה','edit.eyebrow':'עריכה','edit.title':'תמונה ופרטים',
+ 'profile.upload':'העלאת תמונה','profile.avatarHint':'JPG / PNG / WebP · עד 10MB','field.first':'שם פרטי','field.last':'שם משפחה',
+ 'field.display':'שם תצוגה','field.country':'מדינה','country.pick':'בחר מדינה …','common.save':'שמירה',
+ 'skills.eyebrow':'דירוג','skills.title':'כישורים','skills.hint':'הקש על הכוכבים (0–5) — מוצג בכרטיס בזמן אמת.',
+ 'skill.shark':'Shark','skill.defense':'הגנה','skill.intelligence':'תבונת משחק','skill.serve':'הגשה','skill.reception':'קבלה',
+ 'status.eyebrow':'סטטוס','license.title':'רישיון','license.number':'מספר רישיון','license.validUntil':'בתוקף עד','license.plan':'תוכנית','license.status':'סטטוס',
+ 'license.basic':'Basic','license.premium':'Premium','license.none':'עדיין אין לך רישיון פעיל.','license.buy':'רכישת רישיון','license.upgrade':'שדרוג ל-Premium →',
+ 'st.active':'פעיל','st.pending':'ממתין','st.expired':'פג תוקף','st.suspended':'מושעה','st.revoked':'בוטל',
+ 'card.intlLicense':'International License','card.licenseLabel':'רישיון','tournaments.eyebrow':'טורנירים','tournaments.title':'הטורנירים שלי','soon':'בקרוב','noTournaments':'אין הרשמות עדיין',
+ 'pay.title':'התשלום בקרוב','pay.body':'רכישת הרישיון דרך Stripe בהשלמה. בקרוב תוכל להפיק כאן את רישיון ה-FIFV שלך — Basic או Premium.','pay.close':'הבנתי',
+ 'loading':'טוען …','t.profileSaved':'הפרופיל נשמר','t.skillsSaved':'הכישורים נשמרו','t.avatarSaved':'התמונה עודכנה','t.error':'משהו השתבש','t.tooBig':'התמונה גדולה מדי (עד 10MB)','t.soon':'בקרוב' },
+}
+function lang(){ return (window.FIFV && FIFV.i18n && FIFV.i18n.current) || document.documentElement.lang || 'de' }
+function pt(k){ const l=lang(); return (PT[l]&&PT[l][k]) || PT.en[k] || PT.de[k] || k }
+function applyPT(){ document.querySelectorAll('[data-pt]').forEach(el=>{ el.textContent = pt(el.dataset.pt) }) }
+
+const SK = ['shark','defense','intelligence','serve','reception']
+let ME=null, LIC=null, previewPlan='basic'
+let skills={shark:0,defense:0,intelligence:0,serve:0,reception:0}
+const STAR='<svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 6 21.2l1.4-6.8L2.3 9.7l6.9-.7z"/></svg>'
+
+FIFV.requireAuth().then(boot)
+async function boot(user){
+  document.documentElement.lang = lang()
+  buildLangMenu(); buildSkillEditor(); renderCountrySelect(); applyPT()
+  const [profile, license] = await Promise.all([
+    FIFV.getProfile().catch(()=>null),
+    FIFV.getActiveLicense().catch(()=>null),
+  ])
+  ME = profile || { id:user.id }
+  LIC = license || null
+  document.getElementById('f-first').value   = ME.first_name   ?? ''
+  document.getElementById('f-last').value    = ME.last_name    ?? ''
+  document.getElementById('f-display').value = ME.display_name ?? ''
+  if(ME.country_code){ document.getElementById('f-country').value = ME.country_code }
+  const s = ME.skills || {}
+  SK.forEach(k => skills[k] = clamp(s[k]))
+  refreshSkillEditor(); setAvatar(ME.avatar_url)
+  setPlan((LIC && LIC.plan==='premium') ? 'prem' : 'basic')
+  renderLicense(); renderCard()
+  setTimeout(()=> document.getElementById('splash').classList.add('hide'), 320)
+}
+
+function ovr(){ const sum=SK.reduce((a,k)=>a+clamp(skills[k]),0); return sum===0?'—':Math.round(sum/25*99) }
+function renderCard(){
+  const c=document.getElementById('card'); c.className='card '+previewPlan
+  document.getElementById('ovr').textContent = ovr()
+  const name=(ME?.display_name || `${ME?.first_name||''} ${ME?.last_name||''}`).trim() || pt('profile.title')
+  document.getElementById('c-name').textContent = name
+  const cc=ME?.country_code
+  const flag = cc ? cflag(cc) : '🏳️', cn = cc ? cname_(cc) : '—'
+  document.getElementById('c-loc').innerHTML = `<span>${flag}</span><span>${cn}</span>`
+  const av=document.getElementById('c-av')
+  if(ME?.avatar_url){ av.style.backgroundImage=`url("${ME.avatar_url}")`; av.textContent='' }
+  else { av.style.backgroundImage=''; av.textContent=initials(name) }
+  document.getElementById('c-skills').innerHTML = SK.map(k=>`<div class="c-sk"><b>${clamp(skills[k])}</b><span>${pt('skill.'+k).slice(0,4)}</span></div>`).join('')
+  document.getElementById('c-serial').textContent = (LIC && licField(LIC,['license_number','number','licence_number'])) || 'FIFV-•••••'
+  document.getElementById('c-valid').textContent  = fmt(LIC && licField(LIC,['valid_until','valid_to','expires_at','current_period_end','season_end','expiry_date']))
+}
+function setPlan(p){
+  previewPlan=p
+  document.getElementById('t-basic').classList.toggle('on',p==='basic')
+  document.getElementById('t-prem').classList.toggle('on',p==='prem')
+  renderCard()
+}
+
+function buildSkillEditor(){
+  document.getElementById('skedit').innerHTML = SK.map(k=>`
+    <div class="sk-row"><span class="nm" data-sk="${k}">${pt('skill.'+k)}</span>
+      <div class="stars">${[1,2,3,4,5].map(n=>`<span class="star" data-k="${k}" data-n="${n}" onclick="setSk('${k}',${n})">${STAR}</span>`).join('')}</div>
+    </div>`).join('')
+}
+function refreshSkillEditor(){
+  SK.forEach(k=>{
+    document.querySelectorAll(`.star[data-k="${k}"]`).forEach(st=> st.classList.toggle('on', Number(st.dataset.n)<=clamp(skills[k])))
+    const nm=document.querySelector(`[data-sk="${k}"]`); if(nm) nm.textContent=pt('skill.'+k)
+  })
+}
+function setSk(k,n){ skills[k]=(clamp(skills[k])===n)?n-1:n; refreshSkillEditor(); renderCard() }
+
+async function saveProfile(){
+  const b=document.getElementById('save-profile'); b.disabled=true
+  const first=val('f-first'), last=val('f-last'), cc=document.getElementById('f-country').value||null
+  let disp=val('f-display'); if(!disp) disp=`${first} ${last}`.trim()
+  const { error } = await SB.from('profiles').update({first_name:first,last_name:last,display_name:disp,country_code:cc}).eq('id',ME.id)
+  b.disabled=false
+  if(error){ console.error(error); return toast(pt('t.error'),'err') }
+  ME={...ME,first_name:first,last_name:last,display_name:disp,country_code:cc}; renderCard(); toast(pt('t.profileSaved'),'ok')
+}
+async function saveSkills(){
+  const b=document.getElementById('save-skills'); b.disabled=true
+  const clean={}; SK.forEach(k=>clean[k]=clamp(skills[k]))
+  const { error } = await SB.from('profiles').update({skills:clean}).eq('id',ME.id)
+  b.disabled=false
+  if(error){ console.error(error); return toast(pt('t.error'),'err') }
+  ME={...ME,skills:clean}; toast(pt('t.skillsSaved'),'ok')
+}
+
+async function uploadAvatar(e){
+  const file=e.target.files&&e.target.files[0]; if(!file) return
+  if(file.size>10*1024*1024) return toast(pt('t.tooBig'),'err')
+  const b=document.getElementById('av-btn'); b.disabled=true; b.textContent=pt('loading')
+  const ext=(file.name.split('.').pop()||'jpg').toLowerCase()
+  const path=`${ME.id}/avatar_${Date.now()}.${ext}`
+  const { error:upErr } = await SB.storage.from('avatars').upload(path,file,{upsert:true,cacheControl:'3600'})
+  if(upErr){ console.error(upErr); b.disabled=false; b.textContent=pt('profile.upload'); return toast(pt('t.error'),'err') }
+  const { data:{ publicUrl } } = SB.storage.from('avatars').getPublicUrl(path)
+  const { error:updErr } = await SB.from('profiles').update({avatar_url:publicUrl}).eq('id',ME.id)
+  if(updErr) console.warn('[FIFV] avatar_url update warn:',updErr)
+  ME.avatar_url=publicUrl; setAvatar(publicUrl); renderCard()
+  b.disabled=false; b.textContent=pt('profile.upload'); toast(pt('t.avatarSaved'),'ok')
+}
+function setAvatar(url){
+  const t=document.getElementById('av-thumb')
+  const name=(ME?.display_name||`${ME?.first_name||''} ${ME?.last_name||''}`).trim()
+  if(url){ t.style.backgroundImage=`url("${url}")`; t.textContent='' } else { t.style.backgroundImage=''; t.textContent=initials(name)||'?' }
+}
+
+function renderLicense(){
+  const body=document.getElementById('lic-body')
+  if(!LIC){
+    body.innerHTML=`<div class="lic-none"><p>${pt('license.none')}</p><button class="btn btn-gold" onclick="openPay()">${pt('license.buy')}</button></div>`
+    return
+  }
+  const num=licField(LIC,['license_number','number','licence_number'])||'—'
+  const plan=LIC.plan||'basic', status=LIC.status||'active'
+  const until=licField(LIC,['valid_until','valid_to','expires_at','current_period_end','season_end','expiry_date'])
+  const planPill = plan==='premium'?'gold':'blue'
+  const stPill = status==='active'?'green':(status==='pending'?'gold':'gray')
+  body.innerHTML=`
+    <div class="lic">
+      <div><div class="k">${pt('license.number')}</div><div class="v mono">${num}</div></div>
+      <div><div class="k">${pt('license.validUntil')}</div><div class="v">${fmt(until)}</div></div>
+      <div><div class="k">${pt('license.plan')}</div><div class="v"><span class="pill ${planPill}">${pt('license.'+plan)}</span></div></div>
+      <div><div class="k">${pt('license.status')}</div><div class="v"><span class="pill ${stPill}">${pt('st.'+status)||status}</span></div></div>
+    </div>
+    ${plan!=='premium'?`<button class="btn btn-gold btn-block" onclick="openPay()">${pt('license.upgrade')}</button>`:''}`
+}
+
+function buildLangMenu(){
+  const menu=document.getElementById('langMenu')
+  const list = (window.FIFV&&FIFV.i18n&&FIFV.i18n.available) || [
+    {code:'de',flag:'🇩🇪',label:'Deutsch'},{code:'en',flag:'🇬🇧',label:'English'},{code:'pt',flag:'🇧🇷',label:'Português'},
+    {code:'es',flag:'🇪🇸',label:'Español'},{code:'fr',flag:'🇫🇷',label:'Français'},{code:'he',flag:'🇮🇱',label:'עברית'}]
+  menu.innerHTML=list.map(l=>`<button class="${l.code===lang()?'on':''}" onclick="pickLang('${l.code}')"><span style="font-size:18px">${l.flag}</span><span>${l.label}</span></button>`).join('')
+}
+function toggleLang(e){ e.stopPropagation(); document.getElementById('langMenu').classList.toggle('open') }
+function pickLang(code){
+  try{ FIFV.i18n.setLang(code) }catch(_){ document.documentElement.lang=code }
+  applyPT(); buildLangMenu(); refreshSkillEditor(); renderCountrySelect(); renderCard(); renderLicense()
+  document.getElementById('langMenu').classList.remove('open')
+}
+document.addEventListener('click', e=>{ if(!e.target.closest('.lang')) document.getElementById('langMenu') && document.getElementById('langMenu').classList.remove('open') })
+
+function renderCountrySelect(){
+  const sel=document.getElementById('f-country'); const cur=(ME&&ME.country_code)||sel.value||''
+  let opts=''
+  try{ opts = FIFV.countries.renderOptions(cur, lang()) }catch(_){ opts='' }
+  sel.innerHTML = `<option value="">${pt('country.pick')}</option>` + opts
+  if(cur) sel.value=cur
+}
+
+function cflag(cc){ try{ return FIFV.countries.flag(cc) }catch(_){ return '🏳️' } }
+function cname_(cc){ try{ return FIFV.countries.name(cc, lang()) }catch(_){ return cc } }
+function openPay(){ document.getElementById('pay-modal').classList.add('open') }
+function closePay(){ document.getElementById('pay-modal').classList.remove('open') }
+function soon(){ toast(pt('t.soon')) }
+let tt
+function toast(msg,kind){ const t=document.getElementById('toast'); t.textContent=msg; t.className='show '+(kind||''); clearTimeout(tt); tt=setTimeout(()=>t.className=(kind||''),2400) }
+function clamp(v){ v=Number(v)||0; return Math.max(0,Math.min(5,Math.round(v))) }
+function val(id){ return document.getElementById(id).value.trim() }
+function initials(n){ return (n||'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]&&w[0].toUpperCase()).join('') }
+function licField(o,keys){ for(const k of keys){ if(o[k]!=null&&o[k]!=='') return o[k] } return null }
+function fmt(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString(lang()==='he'?'he-IL':lang(),{year:'numeric',month:'short',day:'numeric'}) }catch(_){ return String(d) } }
+document.getElementById('spl-txt').textContent = pt('loading')
+</script>
+</body>
+</html>
