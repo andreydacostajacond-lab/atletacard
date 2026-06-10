@@ -1,1534 +1,242 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="de">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>AtletaCard — Footvolley</title>
-<!-- Supabase via CDN -->
+<title>FIFV — Federação Internacional de Futevôlei</title>
+<meta name="description" content="Die offizielle internationale Plattform für Footvolley — Lizenzen, AtletaCards und Turniere."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-/* ─── RESET ─────────────────────────────────────────── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{overflow-x:hidden;min-height:100vh;background:#080c16;color:#dde2ec;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
-  font-size:15px;line-height:1.6}
-button,input,select,textarea{font-family:inherit;outline:none;border:none}
-button{cursor:pointer}
-img{max-width:100%;display:block}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:#0f1420}
-::-webkit-scrollbar-thumb{background:#1e2840;border-radius:4px}
-
-/* ─── TOKENS ─────────────────────────────────────────── */
 :root{
-  --b9:#020e1f;--b8:#04213f;--b7:#063460;--b6:#0a4a87;
-  --b5:#1565b5;--b4:#2980d9;--b3:#5ba5f0;--b2:#9ac8f7;
-  --g9:#1c1000;--g8:#3d2400;--g7:#6b3f00;--g6:#9a5e00;
-  --g5:#c97e00;--g4:#e8a010;--g3:#f5be40;--g2:#fad88a;
-  --s0:#080c16;--s1:#0d1220;--s2:#121929;--s3:#192035;
-  --s4:#1f2840;--s5:#28334f;--s6:#36435e;
-  --t1:#f0f4ff;--t2:#b8c2d8;--t3:#7a8aaa;--t4:#4a5570;
-  --r1:8px;--r2:12px;--r3:18px;--r4:24px;
+  --ink:#0b1524; --muted:#64748b; --faint:#94a3b8;
+  --line:#edf0f4; --fill:#f5f7fa;
+  --blue-700:#073872; --blue-600:#094a96; --blue-500:#0c5cb8; --blue-400:#2f7fd0; --blue-50:#eef5fc;
+  --gold-deep:#2a2008; --gold:#b78b34; --gold-bright:#f0c662; --gold-ink:#7a5510; --sand:#e7d6b0;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --display:'Space Grotesk','Inter',sans-serif;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);line-height:1.55;font-size:15px;background:radial-gradient(ellipse 80% 50% at 75% -5%, #eaf3fd 0%, transparent 55%),#fff;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,a{font-family:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
 
-/* ─── SCREENS ────────────────────────────────────────── */
-.screen{display:none}
-#auth{
-  min-height:100vh;display:none;position:relative;overflow:hidden;
-  align-items:center;justify-content:center;flex-direction:column;
-  background:radial-gradient(ellipse 80% 55% at 60% 110%,
-    rgba(10,74,135,.5),transparent 70%),#080c16;
-}
-#app{display:none;min-height:100vh}
+header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.hbar{height:64px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue-400),var(--blue-600));display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:21px;height:21px;stroke:#fff;fill:none;stroke-width:1.7}
+.logo b{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.02em;color:var(--blue-700)}
+.hright{display:flex;align-items:center;gap:10px}
+.lang{position:relative}
+.lang-btn{width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid var(--line);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.lang-menu{position:absolute;right:0;top:42px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(10,22,40,.12);padding:6px;display:none;flex-direction:column;gap:2px;min-width:150px;z-index:60}
+.lang-menu.open{display:flex}
+.lang-menu button{display:flex;align-items:center;gap:10px;padding:9px 11px;border:none;background:none;border-radius:9px;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;text-align:left;width:100%}
+.lang-menu button:hover{background:var(--fill)}
+html[dir=rtl] .lang-menu{right:auto;left:0}
+.btn{font-weight:600;font-size:15px;border:none;border-radius:12px;cursor:pointer;padding:12px 22px;transition:.16s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--blue-500);color:#fff}
+.btn-primary:hover{background:var(--blue-600);transform:translateY(-1px)}
+.btn-ghost{background:var(--fill);color:var(--ink)}
+.btn-ghost:hover{background:#eef1f6}
+.btn-sm{padding:9px 18px;font-size:14px}
 
-/* ─── SPLASH ─────────────────────────────────────────── */
-#splash{
-  position:fixed;inset:0;z-index:9999;background:#080c16;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:20px;
-  transition:opacity .5s,visibility .5s;
-}
-#splash.hide{opacity:0;visibility:hidden;pointer-events:none}
-.spl-logo{font-size:3rem;font-weight:900;color:var(--t1);
-  font-family:'Arial Black',sans-serif;letter-spacing:.05em}
-.spl-logo span{color:var(--g3)}
-.spl-bar-wrap{width:180px;height:2px;background:var(--s4);border-radius:2px;overflow:hidden}
-.spl-bar{height:100%;width:0;background:linear-gradient(90deg,var(--b6),var(--b3));
-  animation:grow 1s ease-out forwards}
-@keyframes grow{to{width:100%}}
-.spl-sub{font-size:11px;color:var(--t4);letter-spacing:.12em;text-transform:uppercase}
+/* HERO */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding:72px 0 56px}
+@media(max-width:860px){.hero{grid-template-columns:1fr;gap:44px;padding:48px 0 40px;text-align:center}}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-500)}
+.hero h1{font-family:var(--display);font-weight:700;font-size:50px;line-height:1.05;letter-spacing:-.02em;margin:16px 0 18px}
+@media(max-width:860px){.hero h1{font-size:38px}}
+.hero p{font-size:18px;color:var(--muted);max-width:30em;line-height:1.6}
+@media(max-width:860px){.hero p{margin:0 auto}}
+.cta{display:flex;gap:12px;margin-top:30px}
+@media(max-width:860px){.cta{justify-content:center;flex-wrap:wrap}}
+.hero-card{display:flex;justify-content:center}
 
-/* ─── AUTH BG ────────────────────────────────────────── */
-.auth-net{
-  position:absolute;inset:0;pointer-events:none;
-  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
-  background-size:60px 60px;
-  mask-image:radial-gradient(ellipse 80% 65% at 50% 100%,black,transparent);
-  -webkit-mask-image:radial-gradient(ellipse 80% 65% at 50% 100%,black,transparent);
-}
-.auth-circle{
-  position:absolute;bottom:-100px;right:5%;width:360px;height:360px;
-  border-radius:50%;border:1px solid rgba(255,255,255,.05);pointer-events:none;
-  background:radial-gradient(circle at 35% 35%,rgba(10,74,135,.2),transparent 65%);
-}
+/* CARD */
+.card{position:relative;width:300px;border-radius:24px;overflow:hidden;aspect-ratio:11/16;color:#fff;display:flex;flex-direction:column;padding:22px 22px 0;isolation:isolate;background:linear-gradient(168deg,#3a2c0c 0%,#221806 55%,#0f0a03 100%);box-shadow:0 24px 60px rgba(150,110,30,.32);transform:rotate(2.5deg);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.card:hover{transform:rotate(0deg) translateY(-5px)}
+.card::after{content:"";position:absolute;inset:0;border:1px solid rgba(240,198,98,.4);border-radius:24px;z-index:2;pointer-events:none}
+.card .sheen{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,232,180,.16) 47%,rgba(255,240,200,.05) 53%,transparent 66%);background-size:280% 280%;animation:sheen 7s ease-in-out infinite}
+@keyframes sheen{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.card .sand{position:absolute;left:0;right:0;bottom:0;height:6px;z-index:1;background:linear-gradient(90deg,transparent,var(--sand),transparent);opacity:.5}
+.c-top{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:flex-start}
+.c-crest .mk{display:flex;align-items:center;gap:7px;font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.04em}
+.c-crest .mk svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7}
+.c-crest .lbl{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;opacity:.62;margin-top:5px;display:block}
+.c-ovr{text-align:right;line-height:.9}
+.c-ovr b{font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:-.02em;display:block;color:var(--gold-bright)}
+.c-ovr span{font-size:9px;font-weight:600;letter-spacing:.18em;opacity:.62}
+.c-mid{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:8px 0}
+.c-av{width:104px;height:104px;border-radius:24px;background:rgba(255,255,255,.10);border:1px solid rgba(240,198,98,.45);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:34px;color:rgba(255,255,255,.92)}
+.c-name{font-family:var(--display);font-weight:600;font-size:22px;text-align:center}
+.c-loc{display:flex;align-items:center;gap:7px;font-size:13px;opacity:.85}
+.c-skills{position:relative;z-index:3;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:16px 2px}
+.c-sk{text-align:center}
+.c-sk b{font-family:var(--display);font-weight:600;font-size:16px;display:block}
+.c-sk span{font-size:8.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.6}
+.c-foot{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;padding:13px 0 16px;border-top:1px solid rgba(255,255,255,.14);font-size:11px}
+.c-foot .k{opacity:.55;font-size:8.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.c-foot .v{font-family:ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:.02em}
+.c-foot .r{text-align:right}
 
-/* ─── AUTH CARD ──────────────────────────────────────── */
-.auth-wrap{position:relative;z-index:1;width:100%;max-width:400px;padding:1.5rem 1rem}
-.auth-brand{text-align:center;margin-bottom:1.75rem}
-.auth-logo-box{
-  width:56px;height:56px;border-radius:14px;margin:0 auto 10px;
-  background:linear-gradient(140deg,var(--b7),var(--b4));
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 8px 28px rgba(10,74,135,.4);
-}
-.auth-logo-box svg{width:30px;height:30px;fill:#fff}
-.auth-brand h1{font-size:2.2rem;font-weight:900;font-family:'Arial Black',sans-serif;
-  color:var(--t1);letter-spacing:.04em;margin-bottom:3px}
-.auth-brand p{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em}
-.auth-card{background:var(--s2);border:1px solid rgba(255,255,255,.07);
-  border-radius:var(--r4);padding:1.75rem;box-shadow:0 24px 80px rgba(0,0,0,.5)}
-.auth-tabs{display:flex;gap:4px;background:var(--s3);border-radius:var(--r2);
-  padding:4px;margin-bottom:1.5rem}
-.atab{flex:1;padding:9px;border-radius:var(--r1);font-size:14px;font-weight:500;
-  color:var(--t3);background:transparent;transition:all .2s}
-.atab.on{background:var(--b6);color:#fff;box-shadow:0 2px 12px rgba(10,74,135,.5)}
-.aform{display:none;flex-direction:column;gap:11px}
-.aform.on{display:flex}
-.fg{display:flex;flex-direction:column;gap:4px}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.lbl{font-size:11px;font-weight:600;color:var(--t3);
-  text-transform:uppercase;letter-spacing:.06em}
-.inp{width:100%;background:var(--s3);border:1px solid rgba(255,255,255,.08);
-  border-radius:var(--r1);padding:10px 12px;font-size:14px;color:var(--t1);
-  transition:border-color .2s}
-.inp:focus{border-color:var(--b4)}
-.inp::placeholder{color:var(--t4)}
-select.inp option{background:var(--s3)}
-.plan-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.popt{border:1.5px solid rgba(255,255,255,.08);border-radius:var(--r2);
-  padding:11px;cursor:pointer;transition:all .2s;text-align:center}
-.popt.sel-b{border-color:var(--b4);background:rgba(10,74,135,.15)}
-.popt.sel-p{border-color:var(--g4);background:rgba(232,160,16,.1)}
-.popt-name{font-size:13px;font-weight:600;margin-bottom:2px}
-.popt-price{font-size:1.4rem;font-weight:300;line-height:1}
-.popt-price small{font-size:11px;color:var(--t3);font-weight:400}
-.err-box{background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.25);
-  border-radius:var(--r1);padding:9px 12px;font-size:13px;color:#f08080;display:none}
-.err-box.on{display:block}
+/* PILLARS */
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;padding:24px 0 88px;border-top:1px solid var(--line);margin-top:8px}
+@media(max-width:780px){.pillars{grid-template-columns:1fr;gap:30px;padding:40px 0 64px}}
+.pillar{padding-top:36px}
+.pillar .pi{width:44px;height:44px;border-radius:13px;background:var(--blue-50);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.pillar .pi svg{width:23px;height:23px;stroke:var(--blue-600);fill:none;stroke-width:1.7}
+.pillar h3{font-family:var(--display);font-weight:600;font-size:18px;margin-bottom:7px}
+.pillar p{font-size:14.5px;color:var(--muted);line-height:1.6}
 
-/* ─── BUTTONS ────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  padding:11px 18px;border-radius:var(--r2);font-size:14px;font-weight:600;
-  transition:all .2s;cursor:pointer;border:none}
-.btn:hover{transform:translateY(-1px)}
-.btn:active{transform:translateY(0)}
-.btn-blue{background:linear-gradient(135deg,var(--b6),var(--b4));color:#fff;
-  box-shadow:0 4px 18px rgba(10,74,135,.35)}
-.btn-blue:hover{box-shadow:0 6px 26px rgba(10,74,135,.5)}
-.btn-gold{background:linear-gradient(135deg,var(--g7),var(--g4));color:#fff;
-  box-shadow:0 4px 18px rgba(200,126,0,.3)}
-.btn-gold:hover{box-shadow:0 6px 26px rgba(200,126,0,.45)}
-.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--t2)}
-.btn-ghost:hover{border-color:rgba(255,255,255,.24);color:var(--t1)}
-.btn-full{width:100%}
-.btn-sm{padding:6px 13px;font-size:12px;border-radius:var(--r1)}
-
-/* ─── SIDEBAR ────────────────────────────────────────── */
-#sidebar{
-  position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--s1);
-  border-right:1px solid rgba(255,255,255,.06);z-index:100;
-  flex-direction:column;padding-bottom:1.5rem;display:none;
-}
-#sidebar.on{display:flex}
-.sb-brand{padding:1.4rem 1.25rem .9rem;border-bottom:1px solid rgba(255,255,255,.06);
-  margin-bottom:.6rem}
-.sb-logo{font-size:1.5rem;font-weight:900;font-family:'Arial Black',sans-serif;
-  color:var(--t1);letter-spacing:.04em}
-.sb-logo span{color:var(--g3)}
-.sb-sub{font-size:10px;color:var(--t4);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
-.sb-nav{display:flex;flex-direction:column;gap:2px;padding:0 .7rem;flex:1}
-.sb-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r1);
-  font-size:13px;font-weight:500;color:var(--t3);background:transparent;
-  transition:all .2s;text-align:left;border:none;width:100%}
-.sb-item:hover{background:var(--s3);color:var(--t2)}
-.sb-item.on{background:rgba(10,74,135,.25);color:var(--b3);
-  border-left:2px solid var(--b4);padding-left:9px}
-.sb-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
-.sb-sep{height:1px;background:rgba(255,255,255,.06);margin:.4rem .7rem}
-.sb-user{padding:.7rem 1.25rem;border-top:1px solid rgba(255,255,255,.06);
-  margin-top:auto;display:flex;align-items:center;gap:9px}
-.sb-av{width:32px;height:32px;border-radius:50%;background:var(--b6);
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
-.sb-uname{font-size:12px;font-weight:500;color:var(--t2);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sb-uplan{font-size:10px;color:var(--t4)}
-.sb-logout{margin:0 .7rem;padding:8px 11px;border-radius:var(--r1);font-size:12px;
-  color:var(--t4);background:transparent;transition:all .2s;
-  text-align:left;display:flex;align-items:center;gap:8px;border:none;width:calc(100% - 1.4rem)}
-.sb-logout:hover{color:#e74c3c;background:rgba(192,57,43,.1)}
-.sb-logout svg{width:13px;height:13px;flex-shrink:0}
-
-/* ─── TOPBAR (mobile) ────────────────────────────────── */
-#topbar{
-  display:none;position:sticky;top:0;z-index:99;height:54px;
-  background:rgba(8,12,22,.92);backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(255,255,255,.06);
-  padding:0 1rem;align-items:center;gap:10px;
-}
-#topbar.on{display:flex}
-.tb-ham{background:none;border:none;font-size:1.3rem;color:var(--t2);
-  padding:4px;line-height:1;cursor:pointer}
-.tb-logo{font-size:1.2rem;font-weight:900;font-family:'Arial Black',sans-serif;
-  color:var(--t1);flex:1;letter-spacing:.04em}
-.tb-logo span{color:var(--g3)}
-
-/* ─── MOBILE NAV OVERLAY ─────────────────────────────── */
-#mob-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);
-  display:none}
-#mob-overlay.on{display:block}
-#mob-panel{position:absolute;left:0;top:0;bottom:0;width:260px;background:var(--s1);
-  border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;
-  animation:slidein .25s ease-out}
-@keyframes slidein{from{transform:translateX(-100%)}to{transform:translateX(0)}}
-
-/* ─── MAIN CONTENT ───────────────────────────────────── */
-#main{margin-left:220px;min-height:100vh}
-.sec{display:none;padding:2rem 2rem 3rem;max-width:940px}
-.sec.on{display:block}
-.sec-title{font-size:1.6rem;font-weight:700;color:var(--t1);margin-bottom:3px}
-.sec-sub{font-size:13px;color:var(--t3);margin-bottom:1.75rem}
-
-/* ─── DASHBOARD ──────────────────────────────────────── */
-.dash-hero{
-  border-radius:var(--r4);overflow:hidden;padding:1.75rem;
-  margin-bottom:1.4rem;position:relative;
-  background:linear-gradient(135deg,var(--b8),var(--b6) 55%,var(--b4));
-}
-.dash-hero::before{content:'';position:absolute;top:-50px;right:-50px;
-  width:230px;height:230px;border-radius:50%;background:rgba(255,255,255,.04)}
-.dh-inner{position:relative;z-index:1;display:flex;align-items:center;
-  gap:1.1rem;flex-wrap:wrap}
-.dh-av{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.15);
-  border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;
-  justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;flex-shrink:0}
-.dh-info h2{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:2px}
-.dh-info p{font-size:13px;color:rgba(255,255,255,.7)}
-.dh-badge{margin-left:auto;padding:5px 13px;border-radius:999px;
-  font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
-.dh-badge.basic{background:rgba(255,255,255,.15);color:#fff}
-.dh-badge.prem{background:linear-gradient(135deg,var(--g7),var(--g4));color:#fff;
-  box-shadow:0 2px 10px rgba(200,126,0,.4)}
-.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:1.4rem}
-.d-tile{background:var(--s2);border:1px solid rgba(255,255,255,.06);
-  border-radius:var(--r3);padding:1.15rem;cursor:pointer;transition:all .2s;
-  text-align:center;display:flex;flex-direction:column;align-items:center;gap:7px}
-.d-tile:hover{border-color:rgba(255,255,255,.13);transform:translateY(-2px)}
-.d-tile-ic{font-size:1.5rem}
-.d-tile-lb{font-size:11px;font-weight:500;color:var(--t3)}
-.dash-lbl{font-size:11px;font-weight:700;color:var(--t4);
-  text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-.dash-chips{display:flex;gap:7px;flex-wrap:wrap}
-.chip{background:var(--s3);border:1px solid rgba(255,255,255,.07);
-  border-radius:999px;padding:5px 12px;font-size:12px;color:var(--t3);font-weight:500}
-.upg-banner{
-  margin-top:1.25rem;display:none;align-items:center;gap:1rem;cursor:pointer;
-  background:linear-gradient(135deg,rgba(61,36,0,.6),rgba(154,94,0,.3));
-  border:1px solid rgba(232,160,16,.2);border-radius:var(--r3);
-  padding:1.1rem 1.4rem;transition:all .2s;
-}
-.upg-banner:hover{border-color:rgba(232,160,16,.4)}
-.upg-banner h4{font-size:14px;font-weight:600;color:var(--g2);margin-bottom:2px}
-.upg-banner p{font-size:12px;color:var(--t3)}
-
-/* ─── CARD BLOCK ─────────────────────────────────────── */
-.cblock{background:var(--s2);border:1px solid rgba(255,255,255,.07);
-  border-radius:var(--r3);padding:1.15rem}
-.cblock.gold{border-left:2px solid rgba(232,160,16,.4)}
-.cblock.gold .btitle{color:var(--g2)}
-.btitle{font-size:11px;font-weight:700;color:var(--t4);
-  text-transform:uppercase;letter-spacing:.08em;
-  margin-bottom:11px;display:flex;align-items:center;gap:7px}
-.ptag{background:rgba(232,160,16,.15);color:var(--g3);
-  font-size:9px;padding:2px 7px;border-radius:999px;font-weight:700;letter-spacing:.06em}
-.upload-area{border:1.5px dashed rgba(255,255,255,.1);border-radius:var(--r2);
-  padding:1.4rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--s1)}
-.upload-area:hover{border-color:var(--b4);background:rgba(10,74,135,.08)}
-.upload-area svg{width:24px;height:24px;fill:var(--t4);display:block;margin:0 auto 7px}
-.upload-area p{font-size:13px;color:var(--t3);margin-bottom:2px}
-.upload-area small{font-size:11px;color:var(--t4)}
-
-/* ─── SKILLS ─────────────────────────────────────────── */
-.sk-row{display:flex;align-items:center;justify-content:space-between;
-  padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.sk-row:last-child{border-bottom:none}
-.sk-name{font-size:13px;color:var(--t2);width:105px}
-.sk-stars{display:flex;gap:3px}
-.sk-btn{background:none;border:none;padding:2px;cursor:pointer;transition:transform .15s}
-.sk-btn:hover{transform:scale(1.25)}
-.sk-btn svg{width:18px;height:18px;display:block}
-
-/* ─── CREATOR LAYOUT ─────────────────────────────────── */
-.creator-wrap{display:grid;grid-template-columns:1fr 258px;gap:1.4rem;align-items:start}
-.creator-col{display:flex;flex-direction:column;gap:13px}
-.card-sticky{position:sticky;top:20px}
-.prev-label{font-size:11px;font-weight:700;color:var(--t4);
-  text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px;text-align:center}
-.prev-btns{display:flex;gap:7px;margin-top:11px}
-.pvbtn{flex:1;padding:7px;border-radius:var(--r1);font-size:12px;font-weight:600;
-  cursor:pointer;transition:all .2s;border:1.5px solid rgba(255,255,255,.14);
-  background:transparent;color:var(--t3)}
-.pvbtn.on-b{background:rgba(10,74,135,.3);border-color:var(--b5);color:var(--b2)}
-.pvbtn.on-p{background:rgba(107,63,0,.4);border-color:var(--g5);color:var(--g2)}
-
-/* ─── THE CARD ───────────────────────────────────────── */
-.the-card{border-radius:20px;padding:14px;position:relative;overflow:hidden;width:100%}
-.the-card.basic{background:linear-gradient(165deg,#041832,#0f4c81 52%,#2980d9);
-  box-shadow:0 16px 48px rgba(4,24,50,.7)}
-.the-card.prem{background:linear-gradient(165deg,#1c1000,#6b3f00 45%,#e8a010);
-  box-shadow:0 16px 48px rgba(28,16,0,.7)}
-.card-sheen{position:absolute;top:0;left:-80%;width:50%;height:100%;
-  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.07) 50%,transparent 60%);
-  animation:sheen 3.5s infinite;pointer-events:none;display:none}
-@keyframes sheen{0%{left:-80%}100%{left:160%}}
-.card-sand{position:absolute;bottom:0;left:0;right:0;height:30px;
-  background:linear-gradient(0,rgba(154,94,0,.4),transparent);pointer-events:none}
-.card-hd{display:flex;justify-content:space-between;align-items:flex-start;
-  margin-bottom:9px;position:relative;z-index:1}
-.card-nm{font-size:14px;font-weight:700;color:#fff;line-height:1.2;max-width:155px}
-.card-lv{font-size:10px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.28);
-  padding:2px 8px;border-radius:999px}
-.card-img{width:100%;height:124px;border-radius:11px;overflow:hidden;
-  background:rgba(255,255,255,.1);margin-bottom:9px;
-  display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
-.card-img img{width:100%;height:100%;object-fit:cover}
-.card-img-ph{text-align:center;color:rgba(255,255,255,.5)}
-.card-img-ph svg{width:28px;height:28px;fill:rgba(255,255,255,.4);
-  display:block;margin:0 auto 4px}
-.card-img-ph span{font-size:10px}
-.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;position:relative;z-index:1}
-.ctag{background:rgba(0,0,0,.25);color:rgba(255,255,255,.88);
-  font-size:9px;padding:2px 7px;border-radius:999px;font-weight:500}
-.card-partner{background:rgba(0,0,0,.22);border-radius:9px;padding:8px 10px;
-  margin-bottom:8px;display:none;align-items:center;gap:8px;position:relative;z-index:1}
-.par-av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
-.par-nm{font-size:11px;font-weight:700;color:#fff}
-.par-sub{font-size:10px;color:rgba(255,255,255,.6)}
-.par-btn{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);
-  font-size:9px;padding:3px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
-.card-tourns{background:rgba(0,0,0,.2);border-radius:9px;padding:8px 10px;
-  margin-bottom:8px;display:none;position:relative;z-index:1}
-.ct-label{font-size:9px;color:rgba(255,255,255,.5);font-weight:700;
-  letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px}
-.ct-row{display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px}
-.ct-row:last-child{margin-bottom:0}
-.ct-name{color:rgba(255,255,255,.85)}
-.ct-place{color:#f5c542;font-weight:700}
-.card-spons{display:none;gap:4px;flex-wrap:wrap;margin-bottom:8px;position:relative;z-index:1}
-.cs-chip{background:rgba(255,255,255,.15);border-radius:5px;
-  padding:2px 7px;font-size:9px;font-weight:700;color:#fff}
-.card-stats{background:rgba(0,0,0,.2);border-radius:9px;
-  padding:9px;position:relative;z-index:1}
-.cs-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.cs-row:last-child{margin-bottom:0}
-.cs-lbl{font-size:10px;color:rgba(255,255,255,.8);width:82px;font-weight:500}
-.cs-stars{display:flex;gap:2px}
-.card-phone{display:none;margin-top:7px;position:relative;z-index:1}
-.card-phone-inner{background:rgba(0,0,0,.25);border-radius:8px;
-  padding:6px 9px;display:flex;align-items:center;gap:6px}
-.card-phone-inner svg{width:11px;height:11px;fill:rgba(255,255,255,.7);flex-shrink:0}
-.card-phone-inner span{font-size:10px;color:rgba(255,255,255,.85);font-weight:500}
-.card-ft{display:flex;justify-content:space-between;align-items:center;
-  margin-top:9px;position:relative;z-index:1}
-.card-copy{font-size:9px;color:rgba(255,255,255,.4)}
-.card-ft-r{display:flex;align-items:center;gap:5px}
-.card-plan-lbl{font-size:9px;background:rgba(255,255,255,.18);color:#fff;
-  padding:2px 8px;border-radius:999px;font-weight:700;letter-spacing:.06em}
-.card-qr{width:26px;height:26px;background:rgba(255,255,255,.9);
-  border-radius:4px;display:none;place-items:center}
-.card-qr.on{display:grid}
-
-/* ─── TOURNAMENTS ────────────────────────────────────── */
-.tadd-block{background:var(--s2);border:1px solid rgba(255,255,255,.07);
-  border-radius:var(--r3);padding:1.15rem;margin-bottom:1.4rem}
-.tadd-row{display:grid;grid-template-columns:1fr 180px auto;gap:10px;align-items:end}
-.tlist{display:flex;flex-direction:column;gap:10px}
-.tcard{background:var(--s2);border:1px solid rgba(255,255,255,.07);
-  border-radius:var(--r3);padding:.9rem 1.15rem;
-  display:flex;align-items:center;gap:11px}
-.tmedal{font-size:1.35rem;flex-shrink:0}
-.tinfo h4{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:1px}
-.tinfo p{font-size:12px;color:var(--t3)}
-.tplace{margin-left:auto;font-size:12px;font-weight:700;
-  padding:4px 12px;border-radius:999px}
-.tp1{background:rgba(245,197,66,.12);color:#f5c542}
-.tp2{background:rgba(192,192,192,.12);color:#c0c0c0}
-.tp3{background:rgba(205,127,50,.12);color:#cd7f32}
-.tp4{background:rgba(255,255,255,.06);color:var(--t3)}
-.empty-state{text-align:center;padding:3rem 1rem;color:var(--t4)}
-.empty-state svg{width:44px;height:44px;fill:currentColor;opacity:.3;
-  display:block;margin:0 auto 11px}
-.empty-state p{font-size:14px}
-
-/* ─── SPONSORS ───────────────────────────────────────── */
-.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));
-  gap:11px;margin-bottom:1.4rem}
-.sp-card{background:var(--s2);border:1px solid rgba(255,255,255,.07);
-  border-radius:var(--r3);padding:1.15rem;text-align:center;transition:all .2s}
-.sp-card:hover{border-color:rgba(255,255,255,.14)}
-.sp-logo{width:44px;height:44px;border-radius:11px;background:var(--s4);
-  margin:0 auto 9px;display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;font-weight:800;color:var(--t2)}
-.sp-name{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px}
-.sp-type-lbl{font-size:11px;color:var(--t4)}
-.sp-add-btn{background:transparent;border:1.5px dashed rgba(255,255,255,.1);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:116px;gap:7px;color:var(--t4);cursor:pointer;transition:all .2s}
-.sp-add-btn:hover{border-color:var(--b4);color:var(--b3)}
-.sp-add-btn svg{width:22px;height:22px;fill:currentColor}
-.sp-add-btn span{font-size:13px;font-weight:500}
-
-/* ─── PLANS ──────────────────────────────────────────── */
-.plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.4rem}
-.plan-card{background:var(--s2);border:1.5px solid rgba(255,255,255,.08);
-  border-radius:var(--r4);padding:1.6rem;position:relative}
-.plan-card.featured{border-color:rgba(232,160,16,.35);background:rgba(232,160,16,.04)}
-.plan-rec{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
-  background:linear-gradient(135deg,var(--g7),var(--g4));color:#fff;
-  font-size:10px;font-weight:800;padding:3px 12px;border-radius:999px;
-  white-space:nowrap;letter-spacing:.06em}
-.plan-name{font-size:.9rem;font-weight:700;color:var(--t2);margin-bottom:5px}
-.plan-price{font-size:2.5rem;font-weight:300;line-height:1;margin-bottom:13px}
-.plan-price small{font-size:13px;color:var(--t3);font-weight:400}
-.plan-feats{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:1.6rem}
-.pf{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--t3)}
-.pck{width:15px;height:15px;border-radius:50%;flex-shrink:0;margin-top:1px;
-  display:flex;align-items:center;justify-content:center}
-.pck.b{background:rgba(25,101,181,.22)}
-.pck.g{background:rgba(200,126,0,.22)}
-.pck svg{width:9px;height:9px;fill:none;stroke-width:2.2;
-  stroke-linecap:round;stroke-linejoin:round}
-.pck.b svg{stroke:var(--b3)}
-.pck.g svg{stroke:var(--g3)}
-
-/* ─── MODAL ──────────────────────────────────────────── */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;
-  display:flex;align-items:center;justify-content:center;padding:1rem;
-  opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-bg.on{opacity:1;pointer-events:all}
-.modal-box{background:var(--s2);border:1px solid rgba(255,255,255,.1);
-  border-radius:var(--r4);padding:1.75rem;width:100%;max-width:370px;
-  transform:translateY(16px);transition:transform .2s}
-.modal-bg.on .modal-box{transform:translateY(0)}
-.modal-title{font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:1.2rem}
-.modal-acts{display:flex;gap:9px;margin-top:1.2rem}
-
-/* ─── TOAST ──────────────────────────────────────────── */
-#toast{position:fixed;bottom:2rem;left:50%;
-  transform:translateX(-50%) translateY(120px);
-  background:var(--s4);border:1px solid rgba(255,255,255,.12);
-  border-radius:999px;padding:9px 20px;font-size:13px;font-weight:500;
-  color:var(--t1);z-index:900;transition:transform .3s;
-  white-space:nowrap;pointer-events:none}
-#toast.on{transform:translateX(-50%) translateY(0)}
-#toast.ok{background:rgba(26,158,106,.22);border-color:rgba(26,158,106,.35);color:#3de0a0}
-#toast.bad{background:rgba(192,57,43,.22);border-color:rgba(192,57,43,.3);color:#f08080}
-
-/* ─── DEMO BANNER ────────────────────────────────────── */
-#demo-bar{
-  position:fixed;bottom:0;left:0;right:0;z-index:800;
-  background:rgba(107,63,0,.96);border-top:1px solid rgba(232,160,16,.3);
-  color:#fad88a;padding:9px 16px;font-size:12px;
-  display:flex;align-items:center;justify-content:center;gap:12px;
-  text-align:center;display:none;
-}
-#demo-bar a{color:var(--g3);text-decoration:underline}
-#demo-bar button{background:rgba(255,255,255,.1);border:none;color:#fad88a;
-  padding:2px 10px;border-radius:4px;cursor:pointer;font-size:12px}
-
-/* ─── RESPONSIVE ─────────────────────────────────────── */
-@media(max-width:768px){
-  #sidebar{display:none!important}
-  #topbar.on{display:flex}
-  #main{margin-left:0}
-  .sec{padding:1.4rem 1rem 2.5rem}
-  .creator-wrap{grid-template-columns:1fr}
-  .card-sticky{position:static;max-width:280px;margin:0 auto}
-  .plans-grid{grid-template-columns:1fr}
-  .dash-grid{grid-template-columns:repeat(2,1fr)}
-  .frow{grid-template-columns:1fr}
-  .plan-pick{grid-template-columns:1fr}
-  .tadd-row{grid-template-columns:1fr;gap:8px}
-  .upg-banner .btn{display:none}
-}
-@media(max-width:420px){
-  .dash-grid{grid-template-columns:1fr 1fr}
-  .auth-card{padding:1.4rem}
-  .spl-logo{font-size:2.5rem}
-}
+footer{border-top:1px solid var(--line);padding:28px 0;color:var(--faint);font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+footer .fl{font-family:var(--display);font-weight:600;color:var(--blue-700)}
 </style>
 </head>
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <div class="spl-logo">ATLETA<span>CARD</span></div>
-  <div class="spl-bar-wrap"><div class="spl-bar"></div></div>
-  <div class="spl-sub">Footvolley</div>
-</div>
-
-<!-- TOAST -->
-<div id="toast"></div>
-
-<!-- DEMO BANNER (shown when no Supabase credentials) -->
-<div id="demo-bar">
-  <span>🎮 Modo demo — <a href="https://supabase.com" target="_blank">Conectar Supabase</a> para dados reais</span>
-  <button onclick="document.getElementById('demo-bar').style.display='none'">×</button>
-</div>
-
-<!-- ═══════════════════════════════════════════════
-     AUTH SCREEN
-═══════════════════════════════════════════════ -->
-<div id="auth">
-  <div class="auth-net"></div>
-  <div class="auth-circle"></div>
-  <div class="auth-wrap">
-    <div class="auth-brand">
-      <div class="auth-logo-box">
-        <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg>
-      </div>
-      <h1>AtletaCard</h1>
-      <p>Footvolley · Carta de Atleta Digital</p>
-    </div>
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <button class="atab on" onclick="switchTab('login')">Entrar</button>
-        <button class="atab" onclick="switchTab('register')">Criar conta</button>
-      </div>
-
-      <!-- LOGIN -->
-      <form id="form-login" class="aform on" onsubmit="doLogin(event)">
-        <div class="err-box" id="login-err"></div>
-        <div class="fg">
-          <label class="lbl">Email</label>
-          <input class="inp" type="email" id="li-email" placeholder="seu@email.com" required/>
-        </div>
-        <div class="fg">
-          <label class="lbl">Senha</label>
-          <input class="inp" type="password" id="li-pw" placeholder="••••••••" required/>
-        </div>
-        <button class="btn btn-blue btn-full" id="li-btn" type="submit">Entrar</button>
-        <p style="font-size:12px;color:var(--t4);text-align:center">
-          Não tem conta?
-          <button type="button" onclick="switchTab('register')"
-            style="background:none;color:var(--b3);font-size:12px;font-weight:600">
-            Criar agora
-          </button>
-        </p>
-      </form>
-
-      <!-- REGISTER -->
-      <form id="form-register" class="aform" onsubmit="doRegister(event)">
-        <div class="err-box" id="reg-err"></div>
-        <div class="frow">
-          <div class="fg"><label class="lbl">Nome</label>
-            <input class="inp" id="r-nome" placeholder="João" required/></div>
-          <div class="fg"><label class="lbl">Sobrenome</label>
-            <input class="inp" id="r-sob" placeholder="Silva" required/></div>
-        </div>
-        <div class="fg"><label class="lbl">Email</label>
-          <input class="inp" type="email" id="r-email" placeholder="seu@email.com" required/></div>
-        <div class="frow">
-          <div class="fg"><label class="lbl">Aniversário</label>
-            <input class="inp" type="date" id="r-aniv" required/></div>
-          <div class="fg"><label class="lbl">Altura (cm)</label>
-            <input class="inp" type="number" id="r-alt" placeholder="182" min="100" max="250"/></div>
-        </div>
-        <div class="frow">
-          <div class="fg"><label class="lbl">Camisa</label>
-            <select class="inp" id="r-cam">
-              <option>P</option><option>M</option><option selected>G</option>
-              <option>GG</option><option>XGG</option>
-            </select>
-          </div>
-          <div class="fg"><label class="lbl">Posição</label>
-            <select class="inp" id="r-pos">
-              <option>Atacante</option><option>Levantador</option>
-              <option>Líbero</option><option>Universal</option>
-            </select>
-          </div>
-        </div>
-        <div class="fg"><label class="lbl">Senha</label>
-          <input class="inp" type="password" id="r-pw" placeholder="Mínimo 8 caracteres" minlength="8" required/></div>
-        <div class="fg">
-          <label class="lbl">Plano</label>
-          <div class="plan-pick">
-            <div class="popt sel-b" id="pp-basic" onclick="pickPlan('basic')">
-              <div class="popt-name" style="color:var(--b3)">Basic</div>
-              <div class="popt-price" style="color:var(--b2)">20€<small>/ano</small></div>
-            </div>
-            <div class="popt" id="pp-prem" onclick="pickPlan('premium')">
-              <div class="popt-name" style="color:var(--g3)">Premium</div>
-              <div class="popt-price" style="color:var(--g2)">50€<small>/ano</small></div>
-            </div>
-          </div>
-        </div>
-        <button class="btn btn-blue btn-full" id="r-btn" type="submit">Criar conta</button>
-      </form>
-    </div>
+<header><div class="wrap hbar">
+  <a class="logo" href="index.html"><span class="logo-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg></span><b>FIFV</b></a>
+  <div class="hright">
+    <div class="lang"><button class="lang-btn" onclick="toggleLang(event)">🌐</button><div class="lang-menu" id="langMenu"></div></div>
+    <a class="btn btn-primary btn-sm" id="cta-top" href="login.html" data-pt="cta.login">Anmelden</a>
   </div>
-</div>
+</div></header>
 
-<!-- ═══════════════════════════════════════════════
-     APP SCREEN
-═══════════════════════════════════════════════ -->
-<div id="app">
-
-  <!-- SIDEBAR desktop -->
-  <nav id="sidebar">
-    <div class="sb-brand">
-      <div class="sb-logo">ATLETA<span>CARD</span></div>
-      <div class="sb-sub">Footvolley</div>
-    </div>
-    <div class="sb-nav">
-      <button class="sb-item on" id="sb-dashboard" onclick="goTo('dashboard')">
-        <span class="sb-icon">🏠</span>Dashboard</button>
-      <button class="sb-item" id="sb-carta" onclick="goTo('carta')">
-        <span class="sb-icon">🎴</span>Minha carta</button>
-      <button class="sb-item" id="sb-torneios" onclick="goTo('torneios')">
-        <span class="sb-icon">🏆</span>Torneios</button>
-      <button class="sb-item" id="sb-patrocinadores" onclick="goTo('patrocinadores')">
-        <span class="sb-icon">🤝</span>Patrocinadores</button>
-      <div class="sb-sep"></div>
-      <button class="sb-item" id="sb-planos" onclick="goTo('planos')">
-        <span class="sb-icon">⭐</span>Planos</button>
-    </div>
-    <div class="sb-user">
-      <div class="sb-av" id="sb-av">JS</div>
-      <div>
-        <div class="sb-uname" id="sb-uname">João Silva</div>
-        <div class="sb-uplan" id="sb-uplan">Basic</div>
+<main class="wrap">
+  <section class="hero">
+    <div class="hero-text">
+      <span class="eyebrow">Federação Internacional de Futevôlei</span>
+      <h1 data-pt="hero.title">Die internationale Heimat des Footvolley.</h1>
+      <p data-pt="hero.sub">Lizenzen, Spielerkarten und Turniere — alles auf einer offiziellen Plattform. Hol dir deine FIFV-Lizenz und deine eigene AtletaCard.</p>
+      <div class="cta">
+        <a class="btn btn-primary" id="cta-main" href="login.html" data-pt="cta.start">Jetzt anmelden</a>
+        <a class="btn btn-ghost" href="#features" data-pt="cta.learn">So funktioniert's</a>
       </div>
     </div>
-    <button class="sb-logout" onclick="doLogout()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Sair
-    </button>
-  </nav>
-
-  <!-- TOPBAR mobile -->
-  <header id="topbar">
-    <button class="tb-ham" onclick="openMob()">☰</button>
-    <span class="tb-logo">ATLETA<span>CARD</span></span>
-    <div style="width:32px"></div>
-  </header>
-
-  <!-- MOBILE OVERLAY NAV -->
-  <div id="mob-overlay" onclick="closeMob()">
-    <div id="mob-panel" onclick="event.stopPropagation()">
-      <div class="sb-brand" style="padding:1.2rem">
-        <div class="sb-logo" style="font-size:1.4rem">ATLETA<span>CARD</span></div>
-      </div>
-      <div class="sb-nav" style="padding:0 .7rem">
-        <button class="sb-item" onclick="goTo('dashboard');closeMob()">
-          <span class="sb-icon">🏠</span>Dashboard</button>
-        <button class="sb-item" onclick="goTo('carta');closeMob()">
-          <span class="sb-icon">🎴</span>Minha carta</button>
-        <button class="sb-item" onclick="goTo('torneios');closeMob()">
-          <span class="sb-icon">🏆</span>Torneios</button>
-        <button class="sb-item" onclick="goTo('patrocinadores');closeMob()">
-          <span class="sb-icon">🤝</span>Patrocinadores</button>
-        <div class="sb-sep"></div>
-        <button class="sb-item" onclick="goTo('planos');closeMob()">
-          <span class="sb-icon">⭐</span>Planos</button>
-        <div class="sb-sep"></div>
-        <button class="sb-item" onclick="doLogout()" style="color:var(--t4)">
-          <span class="sb-icon">↩</span>Sair</button>
+    <div class="hero-card">
+      <div class="card">
+        <div class="sheen"></div>
+        <div class="c-top">
+          <div class="c-crest"><span class="mk"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>FIFV</span><span class="lbl">International License</span></div>
+          <div class="c-ovr"><b>92</b><span>OVR</span></div>
+        </div>
+        <div class="c-mid">
+          <div class="c-av">LA</div>
+          <div class="c-name">Leandro Albert</div>
+          <div class="c-loc"><span>🇨🇭</span><span data-pt="country.ch">Schweiz</span></div>
+        </div>
+        <div class="c-skills">
+          <div class="c-sk"><b>5</b><span>Shar</span></div><div class="c-sk"><b>5</b><span>Defe</span></div>
+          <div class="c-sk"><b>4</b><span>Inte</span></div><div class="c-sk"><b>5</b><span>Serv</span></div><div class="c-sk"><b>4</b><span>Rece</span></div>
+        </div>
+        <div class="c-foot">
+          <div><div class="k">Lizenz</div><div class="v">FIFV-CH-2026-00001</div></div>
+          <div class="r"><div class="k" data-pt="card.valid">Gültig bis</div><div class="v">31.12.2026</div></div>
+        </div>
+        <div class="sand"></div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- MAIN -->
-  <div id="main">
-
-    <!-- DASHBOARD -->
-    <div class="sec on" id="sec-dashboard">
-      <div class="dash-hero">
-        <div class="dh-inner">
-          <div class="dh-av" id="d-av">JS</div>
-          <div class="dh-info">
-            <h2 id="d-name">João Silva</h2>
-            <p id="d-sub">Footvolley · Atacante</p>
-          </div>
-          <div class="dh-badge basic" id="d-badge">Basic</div>
-        </div>
-      </div>
-      <div class="dash-grid">
-        <div class="d-tile" onclick="goTo('carta')">
-          <div class="d-tile-ic">🎴</div><div class="d-tile-lb">Minha carta</div></div>
-        <div class="d-tile" onclick="goTo('torneios')">
-          <div class="d-tile-ic">🏆</div><div class="d-tile-lb">Torneios</div></div>
-        <div class="d-tile" onclick="goTo('patrocinadores')">
-          <div class="d-tile-ic">🤝</div><div class="d-tile-lb">Patrocinadores</div></div>
-        <div class="d-tile" onclick="goTo('planos')">
-          <div class="d-tile-ic">⭐</div><div class="d-tile-lb">Planos</div></div>
-        <div class="d-tile" onclick="shareCard()">
-          <div class="d-tile-ic">🔗</div><div class="d-tile-lb">Compartilhar</div></div>
-        <div class="d-tile" onclick="goTo('carta')">
-          <div class="d-tile-ic">✏️</div><div class="d-tile-lb">Editar carta</div></div>
-      </div>
-      <div class="dash-lbl">Patrocinadores</div>
-      <div class="dash-chips" id="d-sponsors">
-        <div class="chip">Oakley</div>
-        <div class="chip">Arena</div>
-        <div class="chip" onclick="goTo('patrocinadores')" style="cursor:pointer">+ Adicionar</div>
-      </div>
-      <div class="upg-banner" id="upg-banner" onclick="goTo('planos')">
-        <div style="font-size:1.5rem">🏅</div>
-        <div>
-          <h4>Upgrade para Premium</h4>
-          <p>Carta dourada, dupla, torneios e QR Code — 50€/ano</p>
-        </div>
-        <button class="btn btn-gold btn-sm" style="margin-left:auto">Ver Premium</button>
-      </div>
+  <section class="pillars" id="features">
+    <div class="pillar">
+      <div class="pi"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <h3 data-pt="p1.t">Offizielle Lizenz</h3>
+      <p data-pt="p1.d">Deine weltweit gültige FIFV-Spielberechtigung mit eindeutiger Lizenznummer.</p>
     </div>
-
-    <!-- MINHA CARTA -->
-    <div class="sec" id="sec-carta">
-      <div class="sec-title">Minha carta</div>
-      <div class="sec-sub">Preencha seus dados — a carta atualiza em tempo real</div>
-      <div class="creator-wrap">
-        <div class="creator-col">
-
-          <div class="cblock">
-            <div class="btitle">Dados do atleta</div>
-            <div style="display:flex;flex-direction:column;gap:10px">
-              <div class="fg">
-                <label class="lbl">Nome na carta</label>
-                <input class="inp" id="c-nome" placeholder="João Silva" oninput="liveCard()"/>
-              </div>
-              <div class="frow">
-                <div class="fg">
-                  <label class="lbl">Posição</label>
-                  <select class="inp" id="c-pos" onchange="liveCard()">
-                    <option>Atacante</option><option>Levantador</option>
-                    <option>Líbero</option><option>Universal</option>
-                  </select>
-                </div>
-                <div class="fg">
-                  <label class="lbl">Nível</label>
-                  <select class="inp" id="c-lv" onchange="liveCard()">
-                    <option value="50">LV 50</option><option value="60">LV 60</option>
-                    <option value="70">LV 70</option><option value="80">LV 80</option>
-                    <option value="85" selected>LV 85</option><option value="90">LV 90</option>
-                    <option value="95">LV 95</option><option value="99">LV 99</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="cblock">
-            <div class="btitle">Foto do atleta</div>
-            <div class="upload-area" onclick="document.getElementById('ph-input').click()">
-              <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-              <p>Clique para enviar ou tirar foto</p>
-              <small>JPG, PNG · máx 5MB</small>
-            </div>
-            <input type="file" id="ph-input" accept="image/*" capture="user"
-              style="display:none" onchange="onPhoto(event)"/>
-          </div>
-
-          <div class="cblock">
-            <div class="btitle">Habilidades</div>
-            <div id="skills-editor"></div>
-          </div>
-
-          <!-- PREMIUM ONLY FIELDS -->
-          <div class="cblock gold" id="pb-partner" style="display:none">
-            <div class="btitle">Parceiro de dupla <span class="ptag">Premium</span></div>
-            <div class="frow">
-              <div class="fg">
-                <label class="lbl">Nome do parceiro</label>
-                <input class="inp" id="c-parceiro" placeholder="Pedro Rocha" oninput="liveCard()"/>
-              </div>
-              <div class="fg">
-                <label class="lbl">Link do perfil</label>
-                <input class="inp" id="c-parceiro-link" placeholder="atletacard.com/pedro"/>
-              </div>
-            </div>
-          </div>
-
-          <div class="cblock gold" id="pb-spons" style="display:none">
-            <div class="btitle">Patrocinadores na carta <span class="ptag">Premium</span></div>
-            <div class="fg">
-              <label class="lbl">Nomes separados por vírgula</label>
-              <input class="inp" id="c-spons" placeholder="Oakley, Arena, RedBull" oninput="liveCard()"/>
-            </div>
-          </div>
-
-          <div class="cblock gold" id="pb-tourns" style="display:none">
-            <div class="btitle">Torneios na carta <span class="ptag">Premium</span></div>
-            <p style="font-size:12px;color:var(--t3)">
-              Os torneios registados na secção "Torneios" aparecem automaticamente (máx. 3).
-            </p>
-          </div>
-
-          <div class="cblock gold" id="pb-phone" style="display:none">
-            <div class="btitle">Contacto <span class="ptag">Premium</span></div>
-            <div class="fg">
-              <label class="lbl">Número de telefone</label>
-              <div style="display:flex;gap:8px;align-items:center">
-                <select class="inp" id="c-phone-code" style="width:108px;flex-shrink:0" onchange="liveCard()">
-                  <option value="+55">🇧🇷 +55</option>
-                  <option value="+351">🇵🇹 +351</option>
-                  <option value="+1">🇺🇸 +1</option>
-                  <option value="+34">🇪🇸 +34</option>
-                  <option value="+33">🇫🇷 +33</option>
-                  <option value="+44">🇬🇧 +44</option>
-                  <option value="+49">🇩🇪 +49</option>
-                  <option value="+39">🇮🇹 +39</option>
-                  <option value="+54">🇦🇷 +54</option>
-                  <option value="+598">🇺🇾 +598</option>
-                </select>
-                <input class="inp" id="c-phone" type="text" inputmode="numeric"
-                  placeholder="ex: 99 99999-9999" oninput="liveCard()" style="flex:1;min-width:0"/>
-              </div>
-              <p style="font-size:11px;color:var(--t4);margin-top:5px">
-                📱 Aparece na carta como botão de contacto direto
-              </p>
-            </div>
-          </div>
-
-          <button class="btn btn-blue btn-full" onclick="saveCard()">Salvar carta</button>
-        </div>
-
-        <!-- LIVE CARD PREVIEW -->
-        <div class="card-sticky">
-          <div class="prev-label">Prévia ao vivo</div>
-          <div class="the-card basic" id="live-card">
-            <div class="card-sheen" id="card-sheen"></div>
-            <div class="card-sand"></div>
-            <div class="card-hd">
-              <div class="card-nm" id="p-name">João Silva</div>
-              <div class="card-lv" id="p-lv">LV 85</div>
-            </div>
-            <div class="card-img" id="p-photo">
-              <div class="card-img-ph">
-                <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-                <span>Sua foto aqui</span>
-              </div>
-            </div>
-            <div class="card-tags">
-              <div class="ctag">🏖️ Footvolley</div>
-              <div class="ctag" id="p-pos">Atacante</div>
-            </div>
-            <div class="card-partner" id="p-partner">
-              <div class="par-av" id="p-par-av">?</div>
-              <div style="flex:1">
-                <div class="par-nm" id="p-par-nm">Parceiro</div>
-                <div class="par-sub">Dupla oficial</div>
-              </div>
-              <div class="par-btn">Ver carta</div>
-            </div>
-            <div class="card-tourns" id="p-tourns">
-              <div class="ct-label">Torneios</div>
-              <div id="p-tourns-list"></div>
-            </div>
-            <div class="card-spons" id="p-spons"></div>
-            <div class="card-stats" id="p-stats"></div>
-            <div class="card-phone" id="p-phone">
-              <div class="card-phone-inner">
-                <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                <span id="p-phone-txt">+55 99 99999-9999</span>
-              </div>
-            </div>
-            <div class="card-ft">
-              <div class="card-copy">AtletaCard © 2025</div>
-              <div class="card-ft-r">
-                <div class="card-plan-lbl" id="p-plan">BASIC</div>
-                <div class="card-qr" id="p-qr">
-                  <svg viewBox="0 0 22 22" fill="none" width="20" height="20">
-                    <rect x="1" y="1" width="8" height="8" rx="1" fill="#412402"/>
-                    <rect x="2" y="2" width="6" height="6" rx=".5" fill="white"/>
-                    <rect x="3" y="3" width="4" height="4" fill="#412402"/>
-                    <rect x="13" y="1" width="8" height="8" rx="1" fill="#412402"/>
-                    <rect x="14" y="2" width="6" height="6" rx=".5" fill="white"/>
-                    <rect x="15" y="3" width="4" height="4" fill="#412402"/>
-                    <rect x="1" y="13" width="8" height="8" rx="1" fill="#412402"/>
-                    <rect x="2" y="14" width="6" height="6" rx=".5" fill="white"/>
-                    <rect x="3" y="15" width="4" height="4" fill="#412402"/>
-                    <rect x="13" y="13" width="2" height="2" fill="#412402"/>
-                    <rect x="17" y="13" width="2" height="2" fill="#412402"/>
-                    <rect x="15" y="15" width="2" height="2" fill="#412402"/>
-                    <rect x="13" y="17" width="2" height="2" fill="#412402"/>
-                    <rect x="17" y="17" width="2" height="2" fill="#412402"/>
-                    <rect x="19" y="15" width="2" height="2" fill="#412402"/>
-                    <rect x="13" y="19" width="4" height="2" fill="#412402"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="prev-btns">
-            <button class="pvbtn on-b" id="pvb-basic" onclick="previewAs('basic')">Basic</button>
-            <button class="pvbtn" id="pvb-prem" onclick="previewAs('premium')">Premium</button>
-          </div>
-        </div>
-      </div>
+    <div class="pillar">
+      <div class="pi"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 15h4"/></svg></div>
+      <h3 data-pt="p2.t">Deine AtletaCard</h3>
+      <p data-pt="p2.d">Digitale Spielerkarte mit Skills, Land und Gesamt-Rating — Basic oder Premium.</p>
     </div>
-
-    <!-- TORNEIOS -->
-    <div class="sec" id="sec-torneios">
-      <div class="sec-title">Torneios</div>
-      <div class="sec-sub">Registre seus resultados — aparecem na carta Premium</div>
-      <div class="tadd-block">
-        <div class="btitle" style="margin-bottom:11px">Adicionar torneio</div>
-        <div class="tadd-row">
-          <div class="fg">
-            <label class="lbl">Nome do torneio</label>
-            <input class="inp" id="t-nome" placeholder="Open Rio 2025"/>
-          </div>
-          <div class="fg">
-            <label class="lbl">Colocação</label>
-            <select class="inp" id="t-place">
-              <option value="1">🥇 1º lugar</option>
-              <option value="2">🥈 2º lugar</option>
-              <option value="3">🥉 3º lugar</option>
-              <option value="4">4º lugar+</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl" style="opacity:0">x</label>
-            <button class="btn btn-blue" onclick="addTourn()" style="padding:10px 17px">
-              Adicionar
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="tlist" id="tlist">
-        <div class="empty-state" id="t-empty">
-          <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
-          <p>Nenhum torneio registrado ainda</p>
-        </div>
-      </div>
+    <div class="pillar">
+      <div class="pi"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M5 4h14v5a7 7 0 01-14 0V4z"/></svg></div>
+      <h3 data-pt="p3.t">Turniere weltweit</h3>
+      <p data-pt="p3.d">Melde dich für offizielle Turniere deiner Föderation an — direkt mit deiner Lizenz.</p>
     </div>
+  </section>
+</main>
 
-    <!-- PATROCINADORES -->
-    <div class="sec" id="sec-patrocinadores">
-      <div class="sec-title">Patrocinadores</div>
-      <div class="sec-sub">Suas marcas parceiras aparecem na carta Premium</div>
-      <div class="sp-grid" id="sp-grid">
-        <div class="sp-card">
-          <div class="sp-logo">O</div>
-          <div class="sp-name">Oakley</div>
-          <div class="sp-type-lbl">Óculos e acessórios</div>
-        </div>
-        <div class="sp-card">
-          <div class="sp-logo">A</div>
-          <div class="sp-name">Arena</div>
-          <div class="sp-type-lbl">Roupas esportivas</div>
-        </div>
-        <div class="sp-card">
-          <div class="sp-logo">R</div>
-          <div class="sp-name">Red Bull</div>
-          <div class="sp-type-lbl">Bebida energética</div>
-        </div>
-        <div class="sp-card sp-add-btn" onclick="openSpModal()">
-          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-          <span>Adicionar patrocinador</span>
-        </div>
-      </div>
-    </div>
+<footer class="wrap">
+  <span><span class="fl">FIFV</span> · Federação Internacional de Futevôlei</span>
+  <span>© <span id="yr"></span> FIFV</span>
+</footer>
 
-    <!-- PLANOS -->
-    <div class="sec" id="sec-planos">
-      <div class="sec-title">Planos</div>
-      <div class="sec-sub">Escolha o plano ideal para sua carreira no footvolley</div>
-      <div class="plans-grid">
-        <div class="plan-card">
-          <div class="plan-name" style="color:var(--b3)">Basic</div>
-          <div class="plan-price" style="color:var(--b2)">20€<small>/ano</small></div>
-          <ul class="plan-feats">
-            <li class="pf"><div class="pck b"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>Carta digital (tema oceano)</li>
-            <li class="pf"><div class="pck b"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>Foto personalizada</li>
-            <li class="pf"><div class="pck b"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>5 habilidades com estrelas</li>
-            <li class="pf"><div class="pck b"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>Perfil compartilhável</li>
-          </ul>
-          <button class="btn btn-ghost btn-full"
-            onclick="toast('Plano Basic ativo!','ok')">Plano atual</button>
-        </div>
-        <div class="plan-card featured">
-          <div class="plan-rec">Recomendado</div>
-          <div class="plan-name" style="color:var(--g3)">Premium</div>
-          <div class="plan-price" style="color:var(--g2)">50€<small>/ano</small></div>
-          <ul class="plan-feats">
-            <li class="pf"><div class="pck g"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>Tudo do Basic</li>
-            <li class="pf"><div class="pck g"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>Carta dourada animada</li>
-            <li class="pf"><div class="pck g"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>Parceiro de dupla na carta</li>
-            <li class="pf"><div class="pck g"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>Histórico de torneios</li>
-            <li class="pf"><div class="pck g"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>Patrocinadores com logo</li>
-            <li class="pf"><div class="pck g"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>Telefone de contacto</li>
-            <li class="pf"><div class="pck g"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 5-5"/></svg></div>QR Code dinâmico</li>
-          </ul>
-          <button class="btn btn-gold btn-full"
-            onclick="toast('Em breve: pagamento via Stripe!','ok')">
-            Fazer upgrade →
-          </button>
-        </div>
-      </div>
-      <p style="font-size:12px;color:var(--t4);text-align:center">
-        Pagamento seguro via Stripe · Renovação anual automática · Cancele quando quiser
-      </p>
-    </div>
-
-  </div><!-- /main -->
-</div><!-- /app -->
-
-<!-- MODAL ADD SPONSOR -->
-<div class="modal-bg" id="modal-sp">
-  <div class="modal-box">
-    <div class="modal-title">Adicionar patrocinador</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div class="fg">
-        <label class="lbl">Nome da marca</label>
-        <input class="inp" id="sp-nome" placeholder="Ex: Oakley"/>
-      </div>
-      <div class="fg">
-        <label class="lbl">Tipo</label>
-        <input class="inp" id="sp-tipo" placeholder="Ex: Óculos e acessórios"/>
-      </div>
-    </div>
-    <div class="modal-acts">
-      <button class="btn btn-ghost" onclick="closeSpModal()">Cancelar</button>
-      <button class="btn btn-blue" onclick="confirmSponsor()">Adicionar</button>
-    </div>
-  </div>
-</div>
+<script src="shared/js/supabase.js"></script>
+<script src="shared/js/i18n.js"></script>
+<script src="shared/js/countries.js"></script>
+<script src="shared/js/auth.js"></script>
 
 <script>
-/* ═══════════════════════════════════════════════════════
-   ⚙️  CONFIGURAÇÃO — substitua os valores abaixo
-   após criar o projeto em supabase.com
-   O site funciona em modo demo até você configurar
-═══════════════════════════════════════════════════════ */
-const SUPABASE_URL = 'https://uocpjvvpfvdsfulqipjj.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvY3BqdnZwZnZkc2Z1bHFpcGpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NzE3MzUsImV4cCI6MjA5MjU0NzczNX0.tKByVKDUuKOfFB68y5cjSywTOd8evYKg-3Ft9ouGs6M'
-
-/* ─── DEMO MODE ──────────────────────────────────────── */
-const IS_DEMO = SUPABASE_URL.includes('COLE_SUA')
-
-const DEMO_PROFILE = {
-  id:'demo',nome:'João',sobrenome:'Silva',email:'demo@atletacard.com',
-  posicao:'Atacante',plano:'basic',tamanho_camisa:'G',altura:182,
-  nome_carta:'João Silva',parceiro_dupla:'',habilidades:null,
-  telefone:'',sponsors_carta:''
+const PT={
+ de:{'cta.login':'Anmelden','cta.start':'Jetzt anmelden','cta.learn':'So funktioniert\u2019s','cta.profile':'Mein Profil','cta.toProfile':'Zum Profil',
+  'hero.title':'Die internationale Heimat des Footvolley.','hero.sub':'Lizenzen, Spielerkarten und Turniere — alles auf einer offiziellen Plattform. Hol dir deine FIFV-Lizenz und deine eigene AtletaCard.',
+  'country.ch':'Schweiz','card.valid':'Gültig bis',
+  'p1.t':'Offizielle Lizenz','p1.d':'Deine weltweit gültige FIFV-Spielberechtigung mit eindeutiger Lizenznummer.',
+  'p2.t':'Deine AtletaCard','p2.d':'Digitale Spielerkarte mit Skills, Land und Gesamt-Rating — Basic oder Premium.',
+  'p3.t':'Turniere weltweit','p3.d':'Melde dich für offizielle Turniere deiner Föderation an — direkt mit deiner Lizenz.'},
+ en:{'cta.login':'Sign in','cta.start':'Get started','cta.learn':'How it works','cta.profile':'My profile','cta.toProfile':'Go to profile',
+  'hero.title':'The international home of footvolley.','hero.sub':'Licenses, player cards and tournaments — all on one official platform. Get your FIFV license and your own AtletaCard.',
+  'country.ch':'Switzerland','card.valid':'Valid until',
+  'p1.t':'Official license','p1.d':'Your globally valid FIFV playing license with a unique license number.',
+  'p2.t':'Your AtletaCard','p2.d':'Digital player card with skills, country and overall rating — Basic or Premium.',
+  'p3.t':'Tournaments worldwide','p3.d':'Register for official tournaments of your federation — straight from your license.'},
+ pt:{'cta.login':'Entrar','cta.start':'Começar agora','cta.learn':'Como funciona','cta.profile':'Meu perfil','cta.toProfile':'Ir ao perfil',
+  'hero.title':'A casa internacional do futevôlei.','hero.sub':'Licenças, cards de jogador e torneios — tudo em uma plataforma oficial. Garanta sua licença FIFV e seu próprio AtletaCard.',
+  'country.ch':'Suíça','card.valid':'Válida até',
+  'p1.t':'Licença oficial','p1.d':'Sua licença FIFV válida mundialmente, com número único.',
+  'p2.t':'Seu AtletaCard','p2.d':'Card digital com skills, país e rating geral — Basic ou Premium.',
+  'p3.t':'Torneios no mundo todo','p3.d':'Inscreva-se em torneios oficiais da sua federação — direto pela sua licença.'},
+ es:{'cta.login':'Entrar','cta.start':'Empezar ahora','cta.learn':'Cómo funciona','cta.profile':'Mi perfil','cta.toProfile':'Ir al perfil',
+  'hero.title':'El hogar internacional del futvóley.','hero.sub':'Licencias, tarjetas de jugador y torneos — todo en una plataforma oficial. Consigue tu licencia FIFV y tu propia AtletaCard.',
+  'country.ch':'Suiza','card.valid':'Válida hasta',
+  'p1.t':'Licencia oficial','p1.d':'Tu licencia FIFV válida en todo el mundo, con número único.',
+  'p2.t':'Tu AtletaCard','p2.d':'Tarjeta digital con skills, país y valoración general — Basic o Premium.',
+  'p3.t':'Torneos en todo el mundo','p3.d':'Inscríbete en torneos oficiales de tu federación — directo con tu licencia.'},
+ fr:{'cta.login':'Se connecter','cta.start':'Commencer','cta.learn':'Comment ça marche','cta.profile':'Mon profil','cta.toProfile':'Aller au profil',
+  'hero.title':'La maison internationale du footvolley.','hero.sub':'Licences, cartes de joueur et tournois — tout sur une plateforme officielle. Obtiens ta licence FIFV et ta propre AtletaCard.',
+  'country.ch':'Suisse','card.valid':'Valable jusqu\u2019au',
+  'p1.t':'Licence officielle','p1.d':'Ta licence FIFV valable dans le monde entier, avec un numéro unique.',
+  'p2.t':'Ta AtletaCard','p2.d':'Carte numérique avec skills, pays et note globale — Basic ou Premium.',
+  'p3.t':'Des tournois partout','p3.d':'Inscris-toi aux tournois officiels de ta fédération — directement avec ta licence.'},
+ he:{'cta.login':'התחברות','cta.start':'מתחילים','cta.learn':'איך זה עובד','cta.profile':'הפרופיל שלי','cta.toProfile':'מעבר לפרופיל',
+  'hero.title':'הבית הבינלאומי של פוטוולי.','hero.sub':'רישיונות, כרטיסי שחקן וטורנירים — הכול בפלטפורמה רשמית אחת. קבל את רישיון ה-FIFV ואת ה-AtletaCard שלך.',
+  'country.ch':'שווייץ','card.valid':'בתוקף עד',
+  'p1.t':'רישיון רשמי','p1.d':'רישיון FIFV תקף עולמית עם מספר ייחודי.',
+  'p2.t':'ה-AtletaCard שלך','p2.d':'כרטיס שחקן דיגיטלי עם כישורים, מדינה ודירוג כללי — Basic או Premium.',
+  'p3.t':'טורנירים בכל העולם','p3.d':'הירשם לטורנירים רשמיים של ההתאחדות שלך — ישירות עם הרישיון.'},
 }
+function lang(){ return (window.FIFV&&FIFV.i18n&&FIFV.i18n.current)||document.documentElement.lang||'de' }
+function pt(k){ const l=lang(); return (PT[l]&&PT[l][k])||PT.en[k]||PT.de[k]||k }
+function applyPT(){ document.querySelectorAll('[data-pt]').forEach(el=>{ el.textContent=pt(el.dataset.pt) }) }
 
-function makeDemoSb(){
-  return {
-    auth:{
-      getSession:  async () => ({ data:{ session:null } }),
-      signInWithPassword: async ({ email }) => {
-        const u = { id:'demo-user', email }
-        return { data:{ user:u, session:{ user:u } }, error:null }
-      },
-      signUp: async ({ email }) => ({ data:{ user:{ id:'demo-user', email } }, error:null }),
-      signOut: async () => ({ error:null }),
-      onAuthStateChange: () => {}
-    },
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          single: async () => ({ data:DEMO_PROFILE, error:null }),
-          data:[], error:null
-        }),
-        data:[], error:null
-      }),
-      insert: (d) => ({
-        select: () => ({
-          single: async () => ({
-            data:{ ...d, id:'t'+Date.now(), created_at:new Date().toISOString() },
-            error:null
-          })
-        })
-      }),
-      upsert: async () => ({ error:null }),
-      update: () => ({ eq: () => Promise.resolve({ error:null }) })
-    })
+function buildLangMenu(){
+  const list=(window.FIFV&&FIFV.i18n&&FIFV.i18n.available)||[
+    {code:'de',flag:'🇩🇪',label:'Deutsch'},{code:'en',flag:'🇬🇧',label:'English'},{code:'pt',flag:'🇧🇷',label:'Português'},
+    {code:'es',flag:'🇪🇸',label:'Español'},{code:'fr',flag:'🇫🇷',label:'Français'},{code:'he',flag:'🇮🇱',label:'עברית'}]
+  document.getElementById('langMenu').innerHTML=list.map(l=>`<button class="${l.code===lang()?'on':''}" onclick="pickLang('${l.code}')"><span style="font-size:18px">${l.flag}</span><span>${l.label}</span></button>`).join('')
+}
+function toggleLang(e){ e.stopPropagation(); document.getElementById('langMenu').classList.toggle('open') }
+function pickLang(code){ try{ FIFV.i18n.setLang(code) }catch(_){ document.documentElement.lang=code } applyPT(); buildLangMenu(); document.getElementById('langMenu').classList.remove('open') }
+document.addEventListener('click',e=>{ if(!e.target.closest('.lang')){ const m=document.getElementById('langMenu'); if(m) m.classList.remove('open') } })
+
+async function routeCta(){
+  let loggedIn=false
+  try{ const s=await FIFV.getSession(); loggedIn=!!s }catch(_){}
+  if(loggedIn){
+    const top=document.getElementById('cta-top'), main=document.getElementById('cta-main')
+    top.href='profile.html'; top.textContent=pt('cta.profile')
+    main.href='profile.html'; main.textContent=pt('cta.toProfile')
   }
 }
 
-/* ─── INIT SUPABASE ──────────────────────────────────── */
-let SB = null
-
-function initSupabase(){
-  if(IS_DEMO){
-    SB = makeDemoSb()
-    startApp()
-  } else {
-    try {
-      SB = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-      SB.auth.getSession().then(({ data:{ session } }) => {
-        if(session) bootApp(session.user)
-        else startApp()
-      })
-      SB.auth.onAuthStateChange((event, session) => {
-        if(event === 'SIGNED_IN'  && session) bootApp(session.user)
-        if(event === 'SIGNED_OUT') showAuth()
-      })
-    } catch(e) {
-      console.error('Supabase init failed:', e)
-      SB = makeDemoSb()
-      startApp()
-    }
-  }
-}
-
-/* ─── STATE ──────────────────────────────────────────── */
-let CURRENT_USER = null
-let PROFILE = null
-let CHOSEN_PLAN = 'basic'
-let PHOTO_DATA = null
-let TOURNAMENTS = []
-
-const SKILLS = [
-  { id:'shark',  label:'Shark',        stars:4 },
-  { id:'defesa', label:'Defesa',       stars:3 },
-  { id:'intel',  label:'Inteligência', stars:5 },
-  { id:'saque',  label:'Saque',        stars:4 },
-  { id:'recep',  label:'Recepção',     stars:3 },
-]
-
-/* ─── ENTRY POINT ────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    document.getElementById('splash').classList.add('hide')
-    initSupabase()
-  }, 900)
-})
-
-function startApp(){
-  showAuth()
-}
-
-/* ─── SCREEN SWITCHING ───────────────────────────────── */
-function showAuth(){
-  document.getElementById('auth').style.display = 'flex'
-  document.getElementById('app').style.display  = 'none'
-  document.getElementById('sidebar').classList.remove('on')
-  document.getElementById('topbar').classList.remove('on')
-}
-
-function showApp(){
-  document.getElementById('auth').style.display = 'none'
-  document.getElementById('app').style.display  = 'block'
-  document.getElementById('sidebar').classList.add('on')
-  document.getElementById('topbar').classList.add('on')
-}
-
-/* ─── AUTH ───────────────────────────────────────────── */
-function switchTab(tab){
-  const isLogin = tab === 'login'
-  document.querySelectorAll('.atab').forEach((el,i) =>
-    el.classList.toggle('on', (i===0 && isLogin) || (i===1 && !isLogin)))
-  document.getElementById('form-login').classList.toggle('on', isLogin)
-  document.getElementById('form-register').classList.toggle('on', !isLogin)
-}
-
-function pickPlan(p){
-  CHOSEN_PLAN = p
-  document.getElementById('pp-basic').className = 'popt' + (p==='basic' ? ' sel-b' : '')
-  document.getElementById('pp-prem').className  = 'popt' + (p==='premium' ? ' sel-p' : '')
-}
-
-function showErr(id, msg){
-  const el = document.getElementById(id)
-  el.textContent = msg
-  el.classList.add('on')
-  setTimeout(() => el.classList.remove('on'), 4000)
-}
-
-async function doLogin(e){
-  e.preventDefault()
-  const btn = document.getElementById('li-btn')
-  btn.textContent = 'Entrando...'; btn.disabled = true
-  const { data, error } = await SB.auth.signInWithPassword({
-    email: document.getElementById('li-email').value,
-    password: document.getElementById('li-pw').value,
-  })
-  if(error){ showErr('login-err','Email ou senha incorretos.'); btn.textContent='Entrar'; btn.disabled=false; return }
-  bootApp(data.user)
-}
-
-async function doRegister(e){
-  e.preventDefault()
-  const btn = document.getElementById('r-btn')
-  btn.textContent = 'Criando...'; btn.disabled = true
-  const email = document.getElementById('r-email').value
-  const pw    = document.getElementById('r-pw').value
-  const { data, error } = await SB.auth.signUp({ email, password:pw })
-  if(error){ showErr('reg-err', error.message); btn.textContent='Criar conta'; btn.disabled=false; return }
-  if(data?.user){
-    await SB.from('profiles').upsert({
-      id:             data.user.id,
-      nome:           document.getElementById('r-nome').value,
-      sobrenome:      document.getElementById('r-sob').value,
-      email,
-      aniversario:    document.getElementById('r-aniv').value || null,
-      altura:         parseInt(document.getElementById('r-alt').value) || null,
-      tamanho_camisa: document.getElementById('r-cam').value,
-      posicao:        document.getElementById('r-pos').value,
-      plano:          CHOSEN_PLAN,
-    })
-    bootApp(data.user)
-  }
-  btn.textContent='Criar conta'; btn.disabled=false
-}
-
-async function doLogout(){
-  await SB.auth.signOut()
-  CURRENT_USER = null; PROFILE = null; TOURNAMENTS = []
-  const bar = document.getElementById('demo-bar'); if(bar) bar.style.display='none'
-  showAuth()
-}
-
-/* ─── BOOT APP ───────────────────────────────────────── */
-async function bootApp(user){
-  CURRENT_USER = user
-  showApp()
-
-  // Load profile
-  try {
-    const { data:p } = await SB.from('profiles').select('*').eq('id', user.id).single()
-    PROFILE = p || DEMO_PROFILE
-  } catch { PROFILE = DEMO_PROFILE }
-
-  // Load tournaments
-  try {
-    const res = await SB.from('tournaments').select('*').eq('user_id', user.id)
-    TOURNAMENTS = (res && res.data) || []
-  } catch { TOURNAMENTS = [] }
-
-  fillDashboard(PROFILE)
-  prefillCardForm(PROFILE)
-  renderTournaments()
-  renderSkillsEditor()
-  renderCardStats()
-
-  // Show demo banner
-  if(IS_DEMO){
-    const bar = document.getElementById('demo-bar')
-    if(bar) bar.style.display = 'flex'
-  }
-}
-
-/* ─── DASHBOARD ──────────────────────────────────────── */
-function fillDashboard(p){
-  const full = `${p.nome||''} ${p.sobrenome||''}`.trim()
-  const ini  = `${(p.nome||'')[0]||''}${(p.sobrenome||'')[0]||''}`.toUpperCase()
-  document.getElementById('d-av').textContent    = ini || 'A'
-  document.getElementById('d-name').textContent  = full || 'Atleta'
-  document.getElementById('d-sub').textContent   = `Footvolley · ${p.posicao||'Atleta'}`
-  document.getElementById('sb-av').textContent   = ini || 'A'
-  document.getElementById('sb-uname').textContent = full || 'Atleta'
-  document.getElementById('sb-uplan').textContent = p.plano==='premium' ? 'Premium' : 'Basic'
-
-  const badge = document.getElementById('d-badge')
-  badge.textContent = p.plano==='premium' ? 'Premium' : 'Basic'
-  badge.className   = 'dh-badge ' + (p.plano==='premium' ? 'prem' : 'basic')
-
-  if(p.plano !== 'premium'){
-    document.getElementById('upg-banner').style.display = 'flex'
-  }
-  applyPlanToCard(p.plano)
-}
-
-/* ─── PLAN APPLY ─────────────────────────────────────── */
-function applyPlanToCard(plan){
-  const isPrem = plan === 'premium'
-  const card   = document.getElementById('live-card')
-  card.className = 'the-card ' + (isPrem ? 'prem' : 'basic')
-  document.getElementById('card-sheen').style.display = isPrem ? 'block' : 'none'
-  document.getElementById('p-plan').textContent = isPrem ? 'PREMIUM' : 'BASIC'
-  document.getElementById('p-qr').classList.toggle('on', isPrem)
-  ;['pb-partner','pb-spons','pb-tourns','pb-phone'].forEach(id => {
-    const el = document.getElementById(id)
-    if(el) el.style.display = isPrem ? 'block' : 'none'
-  })
-  liveCard()
-}
-
-/* ─── NAVIGATION ─────────────────────────────────────── */
-function goTo(id){
-  document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'))
-  document.getElementById('sec-' + id).classList.add('on')
-  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('on'))
-  const btn = document.getElementById('sb-' + id)
-  if(btn) btn.classList.add('on')
-  if(id === 'carta'){ renderSkillsEditor(); renderCardStats(); liveCard() }
-  window.scrollTo(0, 0)
-}
-
-function openMob(){ document.getElementById('mob-overlay').classList.add('on') }
-function closeMob(){ document.getElementById('mob-overlay').classList.remove('on') }
-
-/* ─── SKILLS ─────────────────────────────────────────── */
-function renderSkillsEditor(){
-  const container = document.getElementById('skills-editor')
-  if(!container) return
-  container.innerHTML = SKILLS.map(s => `
-    <div class="sk-row">
-      <div class="sk-name">${s.label}</div>
-      <div class="sk-stars">
-        ${[1,2,3,4,5].map(i => `
-          <button class="sk-btn" onclick="setStar('${s.id}',${i})">
-            <svg viewBox="0 0 24 24"
-              style="fill:${i<=s.stars ? '#f5c542' : 'var(--s5)'}">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77
-                l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-          </button>`).join('')}
-      </div>
-    </div>`).join('')
-}
-
-function setStar(id, val){
-  const s = SKILLS.find(x => x.id===id)
-  if(s){ s.stars = val; renderSkillsEditor(); renderCardStats() }
-}
-
-function renderCardStats(){
-  const el = document.getElementById('p-stats')
-  if(!el) return
-  el.innerHTML = SKILLS.map(s => `
-    <div class="cs-row">
-      <div class="cs-lbl">${s.label}</div>
-      <div class="cs-stars">
-        ${[1,2,3,4,5].map(i =>
-          `<svg viewBox="0 0 24 24"
-            style="width:12px;height:12px;
-              fill:${i<=s.stars ? '#f5c542' : 'rgba(255,255,255,.18)'}">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77
-              l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>`).join('')}
-      </div>
-    </div>`).join('')
-}
-
-/* ─── CARD PREFILL ───────────────────────────────────── */
-function prefillCardForm(p){
-  const nm = document.getElementById('c-nome'); if(nm) nm.value = `${p.nome||''} ${p.sobrenome||''}`.trim()
-  const ps = document.getElementById('c-pos');  if(ps && p.posicao) ps.value = p.posicao
-  const pr = document.getElementById('c-parceiro'); if(pr && p.parceiro_dupla) pr.value = p.parceiro_dupla
-  const sp = document.getElementById('c-spons');    if(sp && p.sponsors_carta) sp.value = p.sponsors_carta
-  if(p.telefone){
-    const parts = p.telefone.trim().split(' ')
-    const codeEl = document.getElementById('c-phone-code')
-    const numEl  = document.getElementById('c-phone')
-    if(codeEl && numEl && parts.length > 1){
-      codeEl.value = parts[0]; numEl.value = parts.slice(1).join(' ')
-    }
-  }
-  if(p.habilidades){
-    try{
-      const h = JSON.parse(p.habilidades)
-      h.forEach(hh => { const s = SKILLS.find(x=>x.id===hh.id); if(s) s.stars=hh.stars })
-    }catch{}
-  }
-  liveCard()
-}
-
-/* ─── LIVE CARD UPDATE ───────────────────────────────── */
-function liveCard(){
-  const isPrem = document.getElementById('live-card')?.classList.contains('prem')
-
-  // Basic fields — always update
-  document.getElementById('p-name').textContent =
-    document.getElementById('c-nome')?.value || 'João Silva'
-  document.getElementById('p-pos').textContent =
-    document.getElementById('c-pos')?.value || 'Atacante'
-  document.getElementById('p-lv').textContent =
-    'LV ' + (document.getElementById('c-lv')?.value || '85')
-
-  // Partner
-  const parceiro = document.getElementById('c-parceiro')?.value?.trim() || ''
-  const ppEl     = document.getElementById('p-partner')
-  if(ppEl){
-    ppEl.style.display = (isPrem && parceiro) ? 'flex' : 'none'
-    if(parceiro){
-      document.getElementById('p-par-nm').textContent = parceiro
-      document.getElementById('p-par-av').textContent =
-        parceiro.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() || '?'
-    }
-  }
-
-  // Tournaments
-  const tBox  = document.getElementById('p-tourns')
-  const tList = document.getElementById('p-tourns-list')
-  if(tBox && tList){
-    const top = TOURNAMENTS.slice(0,3)
-    tBox.style.display = (isPrem && top.length) ? 'block' : 'none'
-    if(top.length){
-      const M = {1:'🥇',2:'🥈',3:'🥉',4:'🏅'}
-      const L = {1:'1º lugar',2:'2º lugar',3:'3º lugar',4:'4º+'}
-      tList.innerHTML = top.map(t => `
-        <div class="ct-row">
-          <span class="ct-name">${t.nome}</span>
-          <span class="ct-place">${M[t.colocacao]||'🏅'} ${L[t.colocacao]||'4º+'}</span>
-        </div>`).join('')
-    }
-  }
-
-  // Sponsors
-  const spBox = document.getElementById('p-spons')
-  if(spBox){
-    const spVal  = document.getElementById('c-spons')?.value || ''
-    const spList = spVal.split(',').map(s=>s.trim()).filter(Boolean)
-    spBox.style.display = (isPrem && spList.length) ? 'flex' : 'none'
-    if(spList.length) spBox.innerHTML = spList.map(s=>`<div class="cs-chip">${s}</div>`).join('')
-  }
-
-  // Phone
-  const phRow = document.getElementById('p-phone')
-  const phTxt = document.getElementById('p-phone-txt')
-  if(phRow){
-    const code = document.getElementById('c-phone-code')?.value || '+55'
-    const num  = document.getElementById('c-phone')?.value?.trim() || ''
-    phRow.style.display = (isPrem && num) ? 'block' : 'none'
-    if(phTxt) phTxt.textContent = code + ' ' + num
-  }
-}
-
-/* ─── PREVIEW TOGGLE ─────────────────────────────────── */
-function previewAs(plan){
-  const isPrem = plan === 'premium'
-  const card   = document.getElementById('live-card')
-  card.className = 'the-card ' + (isPrem ? 'prem' : 'basic')
-  document.getElementById('card-sheen').style.display = isPrem ? 'block' : 'none'
-  document.getElementById('p-plan').textContent = isPrem ? 'PREMIUM' : 'BASIC'
-  document.getElementById('p-qr').classList.toggle('on', isPrem)
-  ;['pb-partner','pb-spons','pb-tourns','pb-phone'].forEach(id => {
-    const el = document.getElementById(id); if(el) el.style.display = isPrem ? 'block' : 'none'
-  })
-  document.getElementById('pvb-basic').className = 'pvbtn' + (isPrem ? '' : ' on-b')
-  document.getElementById('pvb-prem').className  = 'pvbtn' + (isPrem ? ' on-p' : '')
-  liveCard()
-}
-
-/* ─── PHOTO ──────────────────────────────────────────── */
-function onPhoto(e){
-  const file = e.target.files[0]; if(!file) return
-  const reader = new FileReader()
-  reader.onload = ev => {
-    PHOTO_DATA = ev.target.result
-    document.getElementById('p-photo').innerHTML =
-      `<img src="${PHOTO_DATA}" alt="atleta"/>`
-  }
-  reader.readAsDataURL(file)
-}
-
-/* ─── SAVE CARD ──────────────────────────────────────── */
-async function saveCard(){
-  if(!CURRENT_USER) return
-  const code = document.getElementById('c-phone-code')?.value || ''
-  const num  = document.getElementById('c-phone')?.value?.trim() || ''
-  const { error } = await SB.from('profiles').update({
-    nome_carta:     document.getElementById('c-nome')?.value || '',
-    posicao:        document.getElementById('c-pos')?.value || '',
-    parceiro_dupla: document.getElementById('c-parceiro')?.value || '',
-    sponsors_carta: document.getElementById('c-spons')?.value || '',
-    telefone:       num ? (code + ' ' + num) : '',
-    habilidades:    JSON.stringify(SKILLS),
-  }).eq('id', CURRENT_USER.id)
-  error ? toast('Erro ao salvar', 'bad') : toast('Carta salva! ✓', 'ok')
-}
-
-/* ─── TOURNAMENTS ────────────────────────────────────── */
-async function addTourn(){
-  const nome  = document.getElementById('t-nome').value.trim()
-  const place = parseInt(document.getElementById('t-place').value)
-  if(!nome){ toast('Digite o nome do torneio', 'bad'); return }
-  const { data, error } = await SB.from('tournaments')
-    .insert({ user_id:CURRENT_USER.id, nome, colocacao:place })
-    .select().single()
-  if(error){ toast('Erro ao adicionar', 'bad'); return }
-  TOURNAMENTS.unshift(data)
-  renderTournaments()
-  liveCard()
-  document.getElementById('t-nome').value = ''
-  toast('Torneio adicionado!', 'ok')
-}
-
-function renderTournaments(){
-  const list  = document.getElementById('tlist')
-  const empty = document.getElementById('t-empty')
-  if(!TOURNAMENTS.length){
-    empty.style.display = 'block'; list.innerHTML = ''; list.appendChild(empty); return
-  }
-  empty.style.display = 'none'
-  const M = {1:'🥇',2:'🥈',3:'🥉',4:'🏅'}
-  const L = {1:'1º lugar',2:'2º lugar',3:'3º lugar',4:'4º+'}
-  const C = {1:'tp1',2:'tp2',3:'tp3',4:'tp4'}
-  list.innerHTML = TOURNAMENTS.map(t => `
-    <div class="tcard">
-      <div class="tmedal">${M[t.colocacao]||'🏅'}</div>
-      <div class="tinfo">
-        <h4>${t.nome}</h4>
-        <p>${new Date(t.created_at).toLocaleDateString('pt-BR')}</p>
-      </div>
-      <div class="tplace ${C[t.colocacao]||'tp4'}">${L[t.colocacao]||'4º+'}</div>
-    </div>`).join('')
-}
-
-/* ─── SPONSORS ───────────────────────────────────────── */
-function openSpModal(){  document.getElementById('modal-sp').classList.add('on') }
-function closeSpModal(){ document.getElementById('modal-sp').classList.remove('on') }
-
-function confirmSponsor(){
-  const nome = document.getElementById('sp-nome').value.trim()
-  const tipo = document.getElementById('sp-tipo').value.trim()
-  if(!nome) return
-  const grid   = document.getElementById('sp-grid')
-  const addBtn = grid.querySelector('.sp-add-btn')
-  const card   = document.createElement('div'); card.className = 'sp-card'
-  card.innerHTML = `
-    <div class="sp-logo">${nome[0].toUpperCase()}</div>
-    <div class="sp-name">${nome}</div>
-    <div class="sp-type-lbl">${tipo||'Patrocinador'}</div>`
-  grid.insertBefore(card, addBtn)
-  document.getElementById('sp-nome').value = ''
-  document.getElementById('sp-tipo').value = ''
-  closeSpModal()
-  toast('Patrocinador adicionado!', 'ok')
-}
-
-document.getElementById('modal-sp').addEventListener('click', e => {
-  if(e.target === document.getElementById('modal-sp')) closeSpModal()
-})
-
-/* ─── SHARE ──────────────────────────────────────────── */
-function shareCard(){
-  const url = window.location.href
-  if(navigator.share) navigator.share({ title:'Minha AtletaCard', url })
-  else if(navigator.clipboard){ navigator.clipboard.writeText(url); toast('Link copiado!','ok') }
-  else toast('Link: ' + url, 'ok')
-}
-
-/* ─── TOAST ──────────────────────────────────────────── */
-let _toastTimer
-function toast(msg, type=''){
-  const el = document.getElementById('toast')
-  el.textContent = msg; el.className = 'on ' + (type||'')
-  clearTimeout(_toastTimer)
-  _toastTimer = setTimeout(() => el.className = '', 3000)
-}
+document.documentElement.lang=lang()
+document.getElementById('yr').textContent=new Date().getFullYear()
+buildLangMenu(); applyPT(); routeCta()
 </script>
 </body>
 </html>
